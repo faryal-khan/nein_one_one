@@ -6,15 +6,15 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// import the Person class from Person.js
+// import the Resource class from Resource.js
 var Resource = require('./Resource.js');
 
 /***************************************/
 
-// endpoint for creating a new person
-// this is the action of the "create new person" form
+// endpoint for creating a new Resource
+// this is the action of the "create new Resource" form
 app.use('/create', (req, res) => {
-	// construct the Person from the form data which is in the request body
+	// construct the Resource from the form data which is in the request body
 	var newResource = new Resource({
 		name: req.body.name,
 		website: req.body.website,
@@ -22,7 +22,7 @@ app.use('/create', (req, res) => {
 		description: req.body.description,
 	});
 
-	// save the person to the database
+	// save the Resource to the database
 	newResource.save((err) => {
 		if (err) {
 			res.type('html').status(200);
@@ -31,14 +31,14 @@ app.use('/create', (req, res) => {
 			res.end();
 		}
 		else {
-			// display the "successfull created" message
-			res.send('successfully added ' + newResource.name + ' to the database');
+			// display the "successfully created" message
+			res.send('Successfully added ' + newResource.name + ' to the database');
 		}
 	});
 }
 );
 
-// endpoint for showing all the people
+// endpoint for showing all the Resources
 app.use('/list', (req, res) => {
 
 	// find all the Resource objects in the database
@@ -65,7 +65,7 @@ app.use('/list', (req, res) => {
 					res.write('<ul>');
 					res.write('<li>Description: ' + resource.description + '</li>'
 						+ '<li>Phone Number: ' + resource.phone + '</li>'
-						+ '<li>Phone Number: ' + resource.website + '</li>'
+						+ '<li>Website: ' + resource.website + '</li>'
 						+ '<br>');
 					res.write('</ul>');
 				});
@@ -77,7 +77,7 @@ app.use('/list', (req, res) => {
 });
 
 // endpoint for accessing data via the web api
-// to use this, make a request for /api to get an array of all Person objects
+// to use this, make a request for /api to get an array of all Resource objects
 // or /api?name=[whatever] to get a single object
 app.use('/api', (req, res) => {
 
@@ -102,7 +102,7 @@ app.use('/api', (req, res) => {
 			var resource = resources[0];
 			// send back a single JSON object
 			res.json({
-				"name": resource.name, "website": resource.age,
+				"name": resource.name, "website": resource.website,
 				"phone": resource.phone, "description": resource.description
 			});
 		}
@@ -111,7 +111,7 @@ app.use('/api', (req, res) => {
 			var returnArray = [];
 			resources.forEach((resource) => {
 				returnArray.push({
-					"name": resource.name, "website": resource.age,
+					"name": resource.name, "website": resource.website,
 					"phone": resource.phone, "description": resource.description
 				});
 			});
