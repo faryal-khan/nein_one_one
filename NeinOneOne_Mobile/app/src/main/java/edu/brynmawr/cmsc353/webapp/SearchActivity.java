@@ -30,7 +30,7 @@ public class SearchActivity extends AppCompatActivity {
 
             URL url = new URL("http://10.0.2.2:3000/api");
 
-            AccessWebTask task = new AccessWebTask();
+            edu.brynmawr.cmsc353.project.AccessWebTask task = new edu.brynmawr.cmsc353.project.AccessWebTask();
             task.execute(url);
             String request = editTextSearch.getText().toString();
             String skip = task.get();
@@ -49,6 +49,7 @@ public class SearchActivity extends AppCompatActivity {
         } catch (Exception e) {
             // uh oh
             e.printStackTrace();
+
             res.setText(e.toString());
         }
     }
