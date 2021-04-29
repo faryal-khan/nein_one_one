@@ -14,7 +14,7 @@ import java.util.HashMap;
 public class SearchActivity extends AppCompatActivity {
     EditText editTextSearch;
     Intent i = new Intent();
-    HashMap<String, String> resources = new HashMap<>();
+    HashMap<String, String[]> resources = new HashMap<>();
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,21 +28,24 @@ public class SearchActivity extends AppCompatActivity {
 
         try {
 
-            URL url = new URL("http://10.0.2.2:3000/all");
+            URL url = new URL("http://10.0.2.2:3000/api");
 
             AccessWebTask task = new AccessWebTask();
             task.execute(url);
             String request = editTextSearch.getText().toString();
             String skip = task.get();
-            skip = task.doInBackground(url);
-            String name = task.getName();
-            //resources = task.getResources();
-            //String descAndPhone = resources.get(request);
-            //if (descAndPhone == null){
-            //    descAndPhone = "Sorry, there are no resources with this name";
-            //}
-            if (name == null) name = "name is null";
-            res.setText(name);
+            //skip = task.doInBackground(url);
+            //String name = task.getName();
+            resources = task.getResources();
+            String phone = resources.get(request)[0];
+            String website = resources.get(request)[1];
+            String description = resources.get(request)[2];
+            String pwd = "Phone: " + phone + "\n" + "Description: " + description;
+            if (pwd == null){
+                pwd = "Sorry, there are no resources with this name";
+            }
+            //if (name == null) name = "name is null";
+            res.setText(pwd);
         } catch (Exception e) {
             // uh oh
             e.printStackTrace();

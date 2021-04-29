@@ -15,11 +15,13 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class AccessWebTask extends AsyncTask<URL, String, String> {
-    HashMap<String, String> resources = new HashMap<>();
-    String name, description = "temp";
-    public HashMap<String, String> getResources(){
+    HashMap<String, String[]> resources = new HashMap<>();
+    String[] pwd = new String[3];
+    String name, phone, website, description;
+    public HashMap<String, String[]> getResources(){
         return resources;
     }
+    //debugging
     public String getName(){
         return name;
     }
@@ -37,19 +39,23 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
             String res = "";
             JSONArray jo = new JSONArray(response);
             for (int i = 0; i < jo.length(); i++){
-                //name = jo.getJSONObject(i).get("name").toString();
-                name = "name";
-                description = "desc";
-                Log.v("name", name);
-                //change names
-                //description = jo.getJSONObject(i).get("age").toString();
-                Log.v("age", description);
-                resources.put(name, description);
+                name = jo.getJSONObject(i).get("name").toString();
+                phone = jo.getJSONObject(i).get("phone").toString();
+                website = jo.getJSONObject(i).get("website").toString();
+                //phone = "phone";
+                //website = "website";
+                //description = "desc";
+                description = jo.getJSONObject(i).get("description").toString();
+                pwd[0] = phone;
+                pwd[1] = website;
+                pwd[2] = description;
+                //Log.v("age", description);
+                resources.put(name, pwd);
             }
             return "";
         }
         catch (Exception e) {
-            return null;
+            return e.toString();
         }
     }
     @Override
