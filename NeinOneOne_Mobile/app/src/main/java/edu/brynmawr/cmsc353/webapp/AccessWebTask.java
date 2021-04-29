@@ -25,7 +25,15 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
     public String getName(){
         return name;
     }
-
+    public String getPhone(){
+        return phone;
+    }
+    public String getDescription(){
+        return description;
+    }
+    public String getWebsite(){
+        return website;
+    }
     public String doInBackground(URL... urls) {
 
         try {
@@ -44,8 +52,8 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
                 website = jo.getJSONObject(i).get("website").toString();
                 //phone = "phone";
                 //website = "website";
-                //description = "desc";
-                description = jo.getJSONObject(i).get("description").toString();
+                description = "desc";
+                //description = jo.getJSONObject(i).get("description").toString();
                 pwd[0] = phone;
                 pwd[1] = website;
                 pwd[2] = description;

@@ -30,7 +30,7 @@ public class SearchActivity extends AppCompatActivity {
 
             URL url = new URL("http://10.0.2.2:3000/api");
 
-            edu.brynmawr.cmsc353.project.AccessWebTask task = new edu.brynmawr.cmsc353.project.AccessWebTask();
+            AccessWebTask task = new AccessWebTask();
             task.execute(url);
             String request = editTextSearch.getText().toString();
             String skip = task.get();
@@ -39,8 +39,8 @@ public class SearchActivity extends AppCompatActivity {
             resources = task.getResources();
             String phone = resources.get(request)[0];
             String website = resources.get(request)[1];
-            String description = resources.get(request)[2];
-            String pwd = "Phone: " + phone + "\n" + "Description: " + description;
+            //String description = resources.get(request)[2];
+            String pwd = "Phone: " + phone + "\n" + "Website: " + website;
             if (pwd == null){
                 pwd = "Sorry, there are no resources with this name";
             }
@@ -49,7 +49,6 @@ public class SearchActivity extends AppCompatActivity {
         } catch (Exception e) {
             // uh oh
             e.printStackTrace();
-
             res.setText(e.toString());
         }
     }
