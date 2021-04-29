@@ -5,14 +5,17 @@ var app = express();
 // set up BodyParser
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(bodyParser.json());
 // import the Resource class from Resource.js
 var Resource = require('./Resource.js');
+var Suggestion = require('./Suggestion.js');
 
 /***************************************/
 
 // endpoint for creating a new Resource
 // this is the action of the "create new Resource" form
+
+
 app.use('/create', (req, res) => {
 	// construct the Resource from the form data which is in the request body
 	var newResource = new Resource({
@@ -37,6 +40,32 @@ app.use('/create', (req, res) => {
 	});
 }
 );
+
+app.post('/suggest', (req, res) => {
+	var newSuggestion = new Suggestion({
+		name: req.body.name,
+		website: req.body.website,
+		phone: req.body.phone,
+		description: req.body.description,
+	});
+
+	// save the Resource to the database
+	newSuggestion.save((err) => {
+		if (err) {
+			res.type('html').status(200);
+			res.write('uh oh: ' + err);
+			console.log(err);
+			res.end();
+		}
+		else {
+			// display the "successfully created" message
+			res.send('Successfully added suggestion: ' + newSuggestion.name + ' to the database');
+			console.log(newSuggestion.website)
+		}
+	});
+}
+);
+
 
 // endpoint for showing all the Resources
 app.use('/list', (req, res) => {
@@ -66,6 +95,43 @@ app.use('/list', (req, res) => {
 					res.write('<li>Description: ' + resource.description + '</li>'
 						+ '<li>Phone Number: ' + resource.phone + '</li>'
 						+ '<li>Website: ' + resource.website + '</li>'
+						+ '<br>');
+					res.write('</ul>');
+				});
+				res.write('</ol>');
+				res.end();
+			}
+		}
+	});
+});
+
+app.use('/suggestlist', (req, res) => {
+
+	// find all the Resource objects in the database
+	Suggestion.find({}, (err, suggestList) => {
+		if (err) {
+			res.type('html').status(200);
+			console.log('error: ' + err);
+			res.write(err);
+		}
+		else {
+			if (suggestList.length == 0) {
+				res.type('html').status(200);
+				res.write('There are no resources.');
+				res.end();
+				return;
+			}
+			else {
+				res.type('html').status(200);
+				res.write('Here are all the resources in the database:');
+				res.write('<ol>');
+				// show all the resources
+				suggestList.forEach((suggestion) => {
+					res.write('<li>' + suggestion.name);
+					res.write('<ul>');
+					res.write('<li>Description: ' + suggestion.description + '</li>'
+						+ '<li>Phone Number: ' + suggestion.phone + '</li>'
+						+ '<li>Website: ' + suggestion.website + '</li>'
 						+ '<br>');
 					res.write('</ul>');
 				});

@@ -2,17 +2,32 @@ package edu.brynmawr.cmsc353.project;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
     public static final int SEARCH_ACTIVITY_ID = 1;
     public static final int ADD_NEW_ACTIVITY_ID = 2;
+    private static final String POST_PARAMS = "name=Fred";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,43 +36,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void onAddNewButtonClick(View v) {
 
-        Intent i = new Intent(this, AddNewActivity.class);
+        Intent i = new Intent(this, edu.brynmawr.cmsc353.project.AddNewActivity.class);
         startActivityForResult(i,ADD_NEW_ACTIVITY_ID);
 
     }
     public void onSearchButtonClick(View v){
-        Intent i = new Intent(this, SearchActivity.class);
+        Intent i = new Intent(this, edu.brynmawr.cmsc353.project.SearchActivity.class);
         startActivityForResult(i,SEARCH_ACTIVITY_ID);
     }
 }
-/*
-    public void onAddNewButtonClick(View v) {
 
-        EditText tv = findViewById(R.id.webField);
-        EditText tv2 = findViewById(R.id.nameField);
-
-        try {
-            // assumes that there is a server running on the AVD's host on port 3000
-            // and that it has a /test endpoint that returns a JSON object with
-            // a field called "status"
-            String result = "http:10.0.2.2:3000";
-            result += "name="+tv2.getText()+ "&age="+tv.getText();
-            URL url = new URL(result);
-            tv.setText(result);
-            AccessWebTask task = new AccessWebTask();
-            task.execute(url);
-            Toast.makeText(MainActivity.this, "Successfully added", Toast.LENGTH_SHORT).show();
-        }
-        catch (Exception e) {
-            // uh oh
-            e.printStackTrace();
-            tv.setText(e.toString());
-        }
-
-
-    }
-}
-*/
 /*
 import androidx.appcompat.app.AppCompatActivity;
 
