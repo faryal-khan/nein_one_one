@@ -29,7 +29,7 @@
                         <a class="nav-link" aria-current="page" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Add new resource</a>
+                        <a class="nav-link" href="new_resource.html">Add new resource</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="#">Update a resource</a>
@@ -55,7 +55,7 @@
 
             <form action="\update" method="PUT">
                 <div class="form-group mb-3">
-                    <label for="name">Resource Name</label>
+                    <label for="name">Resource Name <span class="required">*</span></label>
                     <input type="text" class="form-control" name="name" placeholder="Enter name">
 
                 </div>
@@ -71,7 +71,7 @@
                     <label for="description">Resource Description</label>
                     <textarea class="form-control" name="description" rows="5"></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary">Update</button>
             </form>
         </div>
     </div>

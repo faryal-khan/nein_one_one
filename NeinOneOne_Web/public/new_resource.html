@@ -44,7 +44,7 @@
                         <a class="nav-link active" href="#">Add new resource</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="update_resource.html">Update a resource</a>
+                        <a class="nav-link" href="update_resource.html">Update a resource</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="list_resources.html">All resources</a>
@@ -67,7 +67,7 @@
 
             <form name="create" action="\create" method="POST" onsubmit="return validateForm()">
                 <div class="form-group mb-3">
-                    <label for="name">Resource Name</label>
+                    <label for="name">Resource Name <span class="required">*</span></label>
                     <input type="text" class="form-control" name="name" placeholder="Enter name">
 
                 </div>
@@ -76,7 +76,7 @@
                     <input type="text" class="form-control" name="website" placeholder="www.dontcallthepolice.com">
                 </div>
                 <div class="form-group mb-3">
-                    <label for="phone">Phone Number</label>
+                    <label for="phone">Phone Number <span class="required">*</span></label>
                     <input type="tel" class="form-control" name="phone" placeholder="xxx xxx xxxx">
                 </div>
                 <div class="form-group mb-3">
