@@ -225,7 +225,58 @@ app.use('/update', (req, res) => {
 	}
 });
 
+// endpoint for searching for a keyword
+app.use('/search', (req, res) => {
 
+	// construct the query object
+	var queryObject = {};
+	if (req.query.keyword) {
+		// if there's a keyword in the query parameter, use it here
+		queryObject = { "keyword": req.query.keyword };
+	}
+
+	// find all the Resource objects in the database
+	Resource.find({}, (err, resourceList) => {
+		if (err) {
+			res.type('html').status(200);
+			console.log('error: ' + err);
+			res.write(err);
+		}
+		else {
+			if (resourceList.length == 0) {
+				res.type('html').status(200);
+				res.write('There are no resources.');
+				res.end();
+				return;
+			}
+			else {
+				res.type('html').status(200);
+				res.write("Here are all the resources in the database containing '" + req.query.keyword + "':" );
+				res.write('<ol>');
+				// show all the resources
+				var count = 0;
+				resourceList.forEach((resource) => {
+					// check if name or description contain keyword
+					if(resource.name.includes(req.query.keyword) || resource.description.includes(req.query.keyword)) {
+						count++;
+						res.write('<li>' + resource.name);
+					res.write('<ul>');
+					res.write('<li>Description: ' + resource.description + '</li>'
+						+ '<li>Phone Number: ' + resource.phone + '</li>'
+						+ '<li>Website: ' + resource.website + '</li>'
+						+ '<br>');
+					res.write('</ul>');
+					}
+				});
+				if(count == 0) {
+					res.write("There are no resources containing '" + req.query.keyword + "'." );
+				}
+				res.write('</ol>');
+				res.end();
+			}
+		}
+	});
+});
 
 
 /*************************************************/
