@@ -32,24 +32,29 @@ public class SearchActivity extends AppCompatActivity {
 
             AccessWebTask task = new AccessWebTask();
             task.execute(url);
-            String request = editTextSearch.getText().toString();
-            String skip = task.get();
-            //skip = task.doInBackground(url);
-            //String name = task.getName();
-            resources = task.getResources();
-            String phone = resources.get(request)[0];
-            String website = resources.get(request)[1];
-            //String description = resources.get(request)[2];
-            String pwd = "Phone: " + phone + "\n" + "Website: " + website;
+            String pwd;
+            if ( editTextSearch.getText().toString() == null) {
+                pwd = "Please enter the name of the resource";
+            }
+            else {
+                resources = task.getResources();
+                String request = editTextSearch.getText().toString();
+                String skip = task.get();
+
+                String phone = resources.get(request)[0];
+                String website = resources.get(request)[1];
+                String description = resources.get(request)[2];
+
+                pwd = "Phone: " + phone + "\n" + "Website: " + website;
+            }
             if (pwd == null){
                 pwd = "Sorry, there are no resources with this name";
             }
-            //if (name == null) name = "name is null";
             res.setText(pwd);
         } catch (Exception e) {
             // uh oh
-            e.printStackTrace();
-            res.setText(e.toString());
+            //e.printStackTrace();
+            res.setText("The name is invalid or the resource was not found");
         }
     }
 

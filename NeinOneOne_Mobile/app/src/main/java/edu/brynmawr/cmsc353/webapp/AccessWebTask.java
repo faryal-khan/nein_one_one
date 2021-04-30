@@ -48,12 +48,20 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
             JSONArray jo = new JSONArray(response);
             for (int i = 0; i < jo.length(); i++){
                 name = jo.getJSONObject(i).get("name").toString();
-                phone = jo.getJSONObject(i).get("phone").toString();
-                website = jo.getJSONObject(i).get("website").toString();
-                //phone = "phone";
-                //website = "website";
+
+                if (jo.getJSONObject(i).get("phone").toString() == null)
+                    phone = "This resource did not provide a phone number";
+                else phone = jo.getJSONObject(i).get("phone").toString();
+
+                if (jo.getJSONObject(i).get("website").toString() == null)
+                    website = "This resource did not provide a website";
+                else
+                    website = jo.getJSONObject(i).get("website").toString();
                 description = "desc";
-                //description = jo.getJSONObject(i).get("description").toString();
+                //if (jo.getJSONObject(i).get("description").toString() == null)
+                //    description = "This resource did not provide a description";
+                //else
+                //    description = jo.getJSONObject(i).get("description").toString();
                 pwd[0] = phone;
                 pwd[1] = website;
                 pwd[2] = description;
