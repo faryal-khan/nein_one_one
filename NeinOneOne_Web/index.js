@@ -188,6 +188,43 @@ app.use('/api', (req, res) => {
 	});
 });
 
+app.use('/update', (req,res) => {
+	var filter = {'name': req.query.name};
+	var action = null;
+
+	if(req.query.website != null && req.query.phone != null && req.query.description){
+		action = {'$set' : {'website': req.query.website, 'phone': req.query.phone, 'description': req.query.description}};
+	}else if(req.query.website != null && req.query.phone != null){
+		action = {'$set' : {'website' : req.query.website, 'phone': req.query.phone}};
+	}else if(req.query.website != null && req.query.description != null){
+		action = {'$set' : {'website' : req.query.website, 'description': req.query.description}};
+	}else if(req.query.phone != null && req.query.description != null){
+		action = {'$set' : {'phone' : req.query.phone, 'description': req.query.description}};
+	}else if(req.query.website != null){
+		action = {'$set' : {'website' : req.query.website}};
+	}else if(req.query.phone != null){
+		action = {'$set' : {'phone' : req.query.phone}};
+	}else if(req.query.description != null){
+		action = {'$set' : {'description' : req.query.description}};
+	}
+
+	if(action != null){
+		Resource.findOneAndUpdate(filter,action,(err,orig) => {
+			if(err){
+				res.json({'status':err});
+			}
+			else if (!orig){
+				res.json({'status': 'no resource'});
+			}
+			else{
+				res.json({'status': 'success'});
+			}
+		});
+	}else{
+		res.json({'status' : 'no updates performed'});
+	}
+});
+
 
 
 
