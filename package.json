@@ -1,0 +1,23 @@
+{
+  "name": "nein_one_one",
+  "version": "1.0.0",
+  "description": "Group project for CMSC 353.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/faryal-khan/nein_one_one.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/faryal-khan/nein_one_one/issues"
+  },
+  "homepage": "https://github.com/faryal-khan/nein_one_one#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.12.7"
+  }
+}
