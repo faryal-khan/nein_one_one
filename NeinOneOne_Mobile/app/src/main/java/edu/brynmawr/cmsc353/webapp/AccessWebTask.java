@@ -70,13 +70,32 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
                 resources.put(name, pwd);
             }
              */
-            return "name:" + jo.get("name").toString() + "\n" +
-                    "phone: " + jo.get("phone").toString() + "\n" +
-                    "website: " + jo.get("website").toString() + "\n" +
-                     "description: "  + jo.get("description").toString();
+            if (jo.get("name").toString() == null) name = "name is not provided";
+            else name = jo.get("name").toString();
+
+            if (jo.get("phone").toString() == null) phone = "phone is not provided";
+            else phone = jo.get("phone").toString();
+            if (jo.get("website").toString() == null) website = "website is not provided";
+            else website = jo.get("website").toString();
+            if (jo.get("description").toString() == null) description = "name is not provided";
+            else description = jo.get("description").toString();
+            return "name:" + name + "\n" +
+                    "phone: " + phone + "\n" +
+                    "website: " + website + "\n" +
+                    "description: "  + description;
+
         }
         catch (Exception e) {
-            return e.toString();
+            String ex = "";
+            if (name == null || name.isEmpty()) ex += "Name is empty, ";
+            else ex += "name:" + name + "\n";
+            if (phone == null || phone.isEmpty()) ex += "Phone is empty, ";
+            else ex += "phone: " + phone + "\n";
+            if (website == null || website.isEmpty()) ex += "Website is empty, ";
+            else ex += "website: " + website + "\n";
+            if (description == null || description.isEmpty()) ex += "Description is empty.";
+            else ex += "description: "  + description;
+            return ex;
         }
     }
     @Override

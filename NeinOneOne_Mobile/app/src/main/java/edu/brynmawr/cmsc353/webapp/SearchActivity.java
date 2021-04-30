@@ -28,11 +28,15 @@ public class SearchActivity extends AppCompatActivity {
 
         try {
             String request = editTextSearch.getText().toString();
-            URL url = new URL("http://10.0.2.2:3000/api?name=" + request);
+            if (request.equals("") || request.isEmpty() || request == null || request.equals(" ")){
+                res.setText("Please enter a valid name");
+            }
+            else {
+                URL url = new URL("http://10.0.2.2:3000/api?name=" + request);
 
-            AccessWebTask task = new AccessWebTask();
-            task.execute(url);
-            //String pwd;
+                AccessWebTask task = new AccessWebTask();
+                task.execute(url);
+                //String pwd;
             /*
             if ( editTextSearch.getText().toString() == null) {
                 pwd = "Please enter the name of the resource";
@@ -48,10 +52,11 @@ public class SearchActivity extends AppCompatActivity {
                 //String description = resources.get(request)[2];
 
                 //pwd = "Phone: " + phone + "\n" + "Website: " + website
-            if (pwd == null){
-                pwd = "Sorry, there are no resources with this name";
+                if (pwd == null) {
+                    pwd = "Sorry, there are no resources with this name";
+                }
+                res.setText(pwd);
             }
-            res.setText(pwd);
         } catch (Exception e) {
             // uh oh
             //e.printStackTrace();
