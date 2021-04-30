@@ -51,6 +51,9 @@ public class AddNewActivity extends AppCompatActivity {
                     // this is the JSON that you want to send
                     // note that you need double-quotes around strings
                     // and need to escape those double-quotes with the backslash character
+                    if(nameText.getText().toString() == null || nameText.getText().toString().equals("") || phoneText.getText().toString() == null || phoneText.getText().toString().equals("")){
+                        return "";
+                    }
                     String json = "{\"name\":\"" + nameText.getText() + "\",\"phone\":\" " + phoneText.getText() + "\" "+ ", \"description\":\" "
                             + descText.getText() +"\",\"website\":\"" + webText.getText() + " \"}";
 
@@ -95,7 +98,13 @@ public class AddNewActivity extends AppCompatActivity {
 
             // 4. This method will be run after doInBackground finishes
             protected void onPostExecute(String input) {
-                Toast.makeText(AddNewActivity.this,"Successfully added resource! Our admin team will be in touch soon.",  Toast.LENGTH_SHORT).show();
+
+                if(nameText.getText().toString() == null || nameText.getText().toString().equals("") || phoneText.getText().toString() == null || phoneText.getText().toString().equals("")){
+                    Toast.makeText(AddNewActivity.this,"Name and/or Phone field  cannot empty or null.",  Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(AddNewActivity.this, "Successfully suggested resource! Our admin team will be in touch soon.", Toast.LENGTH_SHORT).show();
+                }
                 phoneText.setText("");
                 descText.setText("");
                 nameText.setText("");
