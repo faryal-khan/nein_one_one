@@ -17,6 +17,16 @@
         integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous">
         </script>
 
+    <script type="text/javascript">
+        function validateForm() {
+            var a = document.forms["update"]["name"].value;
+            if (a == null || a == "") {
+                alert("Resource name cannot be empty");
+                return false;
+            }
+        }
+    </script>
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
@@ -38,6 +48,9 @@
                         <a class="nav-link" href="list_resources.html">All resources</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="suggested_list.html">Suggested resources</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="#">Users</a>
                     </li>
                 </ul>
@@ -53,7 +66,7 @@
         <div class="container-fluid col-8">
             <h4>Update a resource</h4><br>
 
-            <form action="\update" method="PUT">
+            <form name="update" action="\update" method="POST" onsubmit="return validateForm()">
                 <div class="form-group mb-3">
                     <label for="name">Resource Name <span class="required">*</span></label>
                     <input type="text" class="form-control" name="name" placeholder="Enter name">
