@@ -61,6 +61,12 @@
             android:insetTop="100dp"
             android:onClick="onConnectButtonClick"
             android:text="Suggest Resource" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Finish"
+            android:gravity="center"
+            android:onClick="onFinishButtonClick"/>
 
     </LinearLayout>
 

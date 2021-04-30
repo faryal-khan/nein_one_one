@@ -27,26 +27,27 @@ public class SearchActivity extends AppCompatActivity {
         TextView res = findViewById(R.id.result);
 
         try {
-
-            URL url = new URL("http://10.0.2.2:3000/api");
+            String request = editTextSearch.getText().toString();
+            URL url = new URL("http://10.0.2.2:3000/api?name=" + request);
 
             AccessWebTask task = new AccessWebTask();
             task.execute(url);
-            String pwd;
+            //String pwd;
+            /*
             if ( editTextSearch.getText().toString() == null) {
                 pwd = "Please enter the name of the resource";
             }
             else {
-                resources = task.getResources();
-                String request = editTextSearch.getText().toString();
-                String skip = task.get();
+            */
+                //resources = task.getResources();
 
-                String phone = resources.get(request)[0];
-                String website = resources.get(request)[1];
-                String description = resources.get(request)[2];
+                String pwd = task.get();
 
-                pwd = "Phone: " + phone + "\n" + "Website: " + website;
-            }
+                //String phone = resources.get(request)[0];
+                //String website = resources.get(request)[1];
+                //String description = resources.get(request)[2];
+
+                //pwd = "Phone: " + phone + "\n" + "Website: " + website
             if (pwd == null){
                 pwd = "Sorry, there are no resources with this name";
             }
@@ -63,23 +64,4 @@ public class SearchActivity extends AppCompatActivity {
         setResult(RESULT_OK, i);
         finish();
     }
-/*
-    public String getResource(String name) {
-        TextView res = findViewById(R.id.result);
-        try {
-
-            URL url = new URL("http://10.0.2.2:3000/all");
-            i.putExtra("NAME", name);
-            startActivity(i);
-            AccessWebTask task = new AccessWebTask();
-            task.execute(url);
-            String status = task.get();
-            res.setText(status);
-        } catch (Exception e) {
-            // uh oh
-            e.printStackTrace();
-            res.setText(e.toString());
-        }
-    }
-    */
 }

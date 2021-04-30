@@ -45,7 +45,8 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
             Scanner in = new Scanner(url.openStream());
             String response = in.nextLine();
             String res = "";
-            JSONArray jo = new JSONArray(response);
+            JSONObject jo = new JSONObject(response);
+            /*
             for (int i = 0; i < jo.length(); i++){
                 name = jo.getJSONObject(i).get("name").toString();
 
@@ -68,7 +69,11 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
                 //Log.v("age", description);
                 resources.put(name, pwd);
             }
-            return "";
+             */
+            return "name:" + jo.get("name").toString() + "\n" +
+                    "phone: " + jo.get("phone").toString() + "\n" +
+                    "website: " + jo.get("website").toString() + "\n" +
+                     "description: "  + jo.get("description").toString();
         }
         catch (Exception e) {
             return e.toString();
