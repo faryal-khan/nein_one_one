@@ -230,9 +230,16 @@ app.use('/search', (req, res) => {
 
 	// construct the query object
 	var queryObject = {};
-	if (req.query.keyword) {
+	var key = '';
+	if (req.body.keyword) {
+		// if there's a keyword in the body parameter, use it here
+		queryObject = { "keyword": req.body.keyword };
+		key = req.body.keyword; 
+	}
+	else if (req.query.keyword) {
 		// if there's a keyword in the query parameter, use it here
 		queryObject = { "keyword": req.query.keyword };
+		key = req.query.keyword; 
 	}
 
 	// find all the Resource objects in the database
@@ -251,28 +258,32 @@ app.use('/search', (req, res) => {
 			}
 			else {
 				res.type('html').status(200);
-				res.write("Here are all the resources in the database containing '" + req.query.keyword + "':");
+				if(key == '') {
+					res.write('Please enter a search term.');
+					res.end();
+			} else {
+				res.write("Here are all the resources in the database containing '" + key + "':" );
 				res.write('<ol>');
-				// show all the resources
 				var count = 0;
 				resourceList.forEach((resource) => {
 					// check if name or description contain keyword
-					if (resource.name.includes(req.query.keyword) || resource.description.includes(req.query.keyword)) {
+					if(resource.name.includes(key) || resource.description.includes(key)) {
 						count++;
 						res.write('<li>' + resource.name);
-						res.write('<ul>');
-						res.write('<li>Description: ' + resource.description + '</li>'
-							+ '<li>Phone Number: ' + resource.phone + '</li>'
-							+ '<li>Website: ' + resource.website + '</li>'
-							+ '<br>');
-						res.write('</ul>');
+					res.write('<ul>');
+					res.write('<li>Description: ' + resource.description + '</li>'
+						+ '<li>Phone Number: ' + resource.phone + '</li>'
+						+ '<li>Website: ' + resource.website + '</li>'
+						+ '<br>');
+					res.write('</ul>');
 					}
 				});
-				if (count == 0) {
-					res.write("There are no resources containing '" + req.query.keyword + "'.");
+				if(count == 0) {
+					res.write("There are no resources containing '" + key + "'." );
 				}
 				res.write('</ol>');
 				res.end();
+				}
 			}
 		}
 	});

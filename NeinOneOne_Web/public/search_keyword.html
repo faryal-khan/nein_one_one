@@ -19,12 +19,9 @@
 
     <script type="text/javascript">
         function validateForm() {
-            var a = document.forms["create"]["name"].value;
-            var b = document.forms["create"]["website"].value;
-            var c = document.forms["create"]["phone"].value;
-            var d = document.forms["create"]["description"].value;
-            if (a == null || a == "", c == null || c == "") {
-                alert("Name and/or Phone cannot be empty");
+            var a = document.forms["search"]["keyword"].value;
+            if (a == null || a.trim() == "") {
+                alert("Please enter a search term");
                 return false;
             }
         }
@@ -41,7 +38,7 @@
                         <a class="nav-link" aria-current="page" href="#">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Add new resource</a>
+                        <a class="nav-link" href="new_resource.html">Add new resource</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="update_resource.html">Update a resource</a>
@@ -56,7 +53,7 @@
                         <a class="nav-link" href="#">Users</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="search_keyword.html">Search</a>
+                        <a class="nav-link active" href="#">Search</a>
                     </li>
                 </ul>
             </div>
@@ -69,25 +66,12 @@
     <div class="container-fluid m-6 p-2">
 
         <div class="container-fluid col-8">
-            <h4>Add a new resource</h4><br>
+            <h4>Search</h4><br>
 
-            <form name="create" action="\create" method="POST" onsubmit="return validateForm()">
+            <form name="search" action="\search" method="POST" onsubmit="return validateForm()">
                 <div class="form-group mb-3">
-                    <label for="name">Resource Name <span class="required">*</span></label>
-                    <input type="text" class="form-control" name="name" placeholder="Enter name">
-
-                </div>
-                <div class="form-group mb-3">
-                    <label for="website">Website</label>
-                    <input type="text" class="form-control" name="website" placeholder="www.dontcallthepolice.com">
-                </div>
-                <div class="form-group mb-3">
-                    <label for="phone">Phone Number <span class="required">*</span></label>
-                    <input type="tel" class="form-control" name="phone" placeholder="xxx xxx xxxx">
-                </div>
-                <div class="form-group mb-3">
-                    <label for="description">Resource Description</label>
-                    <textarea class="form-control" name="description" rows="5"></textarea>
+                    <label for="keyword">Search by keyword <span class="required">*</span></label>
+                    <input type="text" class="form-control" name="keyword" placeholder="Enter search term">
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
