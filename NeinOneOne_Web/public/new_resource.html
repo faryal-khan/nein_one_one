@@ -23,7 +23,7 @@
             var b = document.forms["create"]["website"].value;
             var c = document.forms["create"]["phone"].value;
             var d = document.forms["create"]["description"].value;
-            if (a == null || a == "", c == null || c == "") {
+            if (a == null || a.trim() == "" || c == null || c.trim() == "") {
                 alert("Name and/or Phone cannot be empty");
                 return false;
             }

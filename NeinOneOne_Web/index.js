@@ -19,10 +19,10 @@ var Suggestion = require('./Suggestion.js');
 app.use('/create', (req, res) => {
 	// construct the Resource from the form data which is in the request body
 	var newResource = new Resource({
-		name: req.body.name,
-		website: req.body.website,
-		phone: req.body.phone,
-		description: req.body.description,
+		name: req.body.name.trim(),
+		website: req.body.website.trim(),
+		phone: req.body.phone.trim(),
+		description: req.body.description.trim(),
 	});
 
 	// save the Resource to the database
