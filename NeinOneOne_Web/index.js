@@ -6,6 +6,13 @@ var app = express();
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Set up ejs
+app.use(express.static(__dirname + '/public'));
+app.set('views', __dirname + '/public');
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+
 // import the Resource class from Resource.js
 var Resource = require('./Resource.js');
 var Suggestion = require('./Suggestion.js');
@@ -123,20 +130,8 @@ app.use('/suggestlist', (req, res) => {
 			}
 			else {
 				res.type('html').status(200);
-				res.write('Here are all the resources in the database:');
-				res.write('<ol>');
-				// show all the resources
-				suggestList.forEach((suggestion) => {
-					res.write('<li>' + suggestion.name);
-					res.write('<ul>');
-					res.write('<li>Description: ' + suggestion.description + '</li>'
-						+ '<li>Phone Number: ' + suggestion.phone + '</li>'
-						+ '<li>Website: ' + suggestion.website + '</li>'
-						+ '<br>');
-					res.write('</ul>');
-				});
-				res.write('</ol>');
-				res.end();
+
+				res.render('suggested_list.html', { suggestionsArr: suggestList });
 			}
 		}
 	});
@@ -234,12 +229,12 @@ app.use('/search', (req, res) => {
 	if (req.body.keyword) {
 		// if there's a keyword in the body parameter, use it here
 		queryObject = { "keyword": req.body.keyword };
-		key = req.body.keyword; 
+		key = req.body.keyword;
 	}
 	else if (req.query.keyword) {
 		// if there's a keyword in the query parameter, use it here
 		queryObject = { "keyword": req.query.keyword };
-		key = req.query.keyword; 
+		key = req.query.keyword;
 	}
 
 	// find all the Resource objects in the database
@@ -258,38 +253,48 @@ app.use('/search', (req, res) => {
 			}
 			else {
 				res.type('html').status(200);
-				if(key == '') {
+				if (key == '') {
 					res.write('Please enter a search term.');
 					res.end();
-			} else {
-				res.write("Here are all the resources in the database containing '" + key + "':" );
-				res.write('<ol>');
-				var count = 0;
-				resourceList.forEach((resource) => {
-					// check if name or description contain keyword
-					if(resource.name.includes(key) || resource.description.includes(key)) {
-						count++;
-						res.write('<li>' + resource.name);
-					res.write('<ul>');
-					res.write('<li>Description: ' + resource.description + '</li>'
-						+ '<li>Phone Number: ' + resource.phone + '</li>'
-						+ '<li>Website: ' + resource.website + '</li>'
-						+ '<br>');
-					res.write('</ul>');
+				} else {
+					res.write("Here are all the resources in the database containing '" + key + "':");
+					res.write('<ol>');
+					var count = 0;
+					resourceList.forEach((resource) => {
+						// check if name or description contain keyword
+						if (resource.name.includes(key) || resource.description.includes(key)) {
+							count++;
+							res.write('<li>' + resource.name);
+							res.write('<ul>');
+							res.write('<li>Description: ' + resource.description + '</li>'
+								+ '<li>Phone Number: ' + resource.phone + '</li>'
+								+ '<li>Website: ' + resource.website + '</li>'
+								+ '<br>');
+							res.write('</ul>');
+						}
+					});
+					if (count == 0) {
+						res.write("There are no resources containing '" + key + "'.");
 					}
-				});
-				if(count == 0) {
-					res.write("There are no resources containing '" + key + "'." );
-				}
-				res.write('</ol>');
-				res.end();
+					res.write('</ol>');
+					res.end();
 				}
 			}
 		}
 	});
 });
 
+app.use('/approve', (req, res) => {
+	res.type('html').status(200);
+	res.write("Approve endpoint to be triggered");
+	res.end();
+});
 
+app.use('/delete', (req, res) => {
+	res.type('html').status(200);
+	res.write("Delete endpoint to be triggered");
+	res.end();
+});
 /*************************************************/
 
 app.use('/public', express.static('public'));
