@@ -291,9 +291,19 @@ app.use('/approve', (req, res) => {
 });
 
 app.use('/delete', (req, res) => {
-	res.type('html').status(200);
-	res.write("Delete endpoint to be triggered");
-	res.end();
+	var filter = { 'name': req.query.name };
+
+	Resource.findOneAndDelete(filter, (err, orig) => {
+		if (err) {
+			res.json({ 'status': err });
+		}
+		else if (!orig) {
+			res.json({ 'status': 'no resource' });
+		}
+		else {
+			res.json({ 'status': 'success' });
+		}
+	});
 });
 /*************************************************/
 
