@@ -1,11 +1,18 @@
 package edu.brynmawr.cmsc353.project;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 
@@ -13,6 +20,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Scanner;
+
+import static androidx.core.content.ContextCompat.startActivity;
 
 public class AccessWebTask extends AsyncTask<URL, String, String> {
     HashMap<String, String[]> resources = new HashMap<>();
@@ -70,23 +79,46 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
                 resources.put(name, pwd);
             }
              */
-            if (jo.get("name").toString() == null) name = "name is not provided";
-            else name = jo.get("name").toString();
 
-            if (jo.get("phone").toString() == null) phone = "phone is not provided";
-            else phone = jo.get("phone").toString();
-            if (jo.get("website").toString() == null) website = "website is not provided";
-            else website = jo.get("website").toString();
-            if (jo.get("description").toString() == null) description = "name is not provided";
-            else description = jo.get("description").toString();
-            return "name:" + name + "\n" +
-                    "phone: " + phone + "\n" +
-                    "website: " + website + "\n" +
-                    "description: "  + description;
+
+
+            res += "name: " + jo.get("name").toString() + "\n";
+            res += "phone: " + jo.get("phone").toString() + "\n";
+            if (jo.get("website").toString() == null || jo.get("website").toString().equals(""))
+                res += "";
+            else res += "website: " + jo.get("website").toString() + "\n";
+            if (jo.get("description").toString() == null || jo.get("description").toString().equals(""))
+                res += "";
+            else res += "description: " + jo.get("description").toString() + "\n";
+            SpannableString ss = new SpannableString(jo.get("phone").toString());
+            ClickableSpan clickableSpan = new ClickableSpan() {
+
+
+                @Override
+                public void onClick(View textView) {
+                    try {
+                        Intent phoneIntent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", jo.get("phone").toString(), null));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
+                /*
+                @Override
+                public void updateDrawState(TextPaint ds) {
+                    super.updateDrawState(ds);
+                }
+                 */
+            };
+            ss.setSpan(clickableSpan, 0, 10, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            return res;
 
         }
         catch (Exception e) {
             String ex = "";
+            if (phone == null && website == null && description == null)
+                return "There are no resources with this name";
             if (name == null || name.isEmpty()) ex += "Name is empty, ";
             else ex += "name:" + name + "\n";
             if (phone == null || phone.isEmpty()) ex += "Phone is empty, ";
@@ -97,6 +129,10 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
             else ex += "description: "  + description;
             return ex;
         }
+    }
+    private String dialContactPhone(String phoneNumber) {
+            new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
+            return phoneNumber;
     }
     @Override
     protected void onPostExecute(String s) {
