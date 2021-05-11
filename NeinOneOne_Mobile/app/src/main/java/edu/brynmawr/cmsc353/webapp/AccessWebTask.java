@@ -25,8 +25,8 @@ import static androidx.core.content.ContextCompat.startActivity;
 
 public class AccessWebTask extends AsyncTask<URL, String, String> {
     HashMap<String, String[]> resources = new HashMap<>();
-    String[] pwd = new String[3];
-    String name, phone, website, description;
+    String[] attributes = new String[7];
+    String name, phone, website, description, lat, lon, location, zipcode;
     public HashMap<String, String[]> getResources(){
         return resources;
     }
@@ -54,46 +54,93 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
             Scanner in = new Scanner(url.openStream());
             String response = in.nextLine();
             String res = "";
-            JSONObject jo = new JSONObject(response);
-            /*
+            //JSONObject jo = new JSONObject(response);
+            JSONArray jo = new JSONArray(response);
+
             for (int i = 0; i < jo.length(); i++){
                 name = jo.getJSONObject(i).get("name").toString();
-
-                if (jo.getJSONObject(i).get("phone").toString() == null)
-                    phone = "This resource did not provide a phone number";
-                else phone = jo.getJSONObject(i).get("phone").toString();
-
-                if (jo.getJSONObject(i).get("website").toString() == null)
-                    website = "This resource did not provide a website";
-                else
+                //res += "name: " + name + "\n";
+                phone = jo.getJSONObject(i).get("phone").toString();
+                //res += "phone: " + phone + "\n";
+                if (jo.getJSONObject(i).get("website").toString() == null ||
+                        jo.getJSONObject(i).get("website").toString().equals(""))
+                    website = "";
+                 //   res += "";
+                else {
                     website = jo.getJSONObject(i).get("website").toString();
-                description = "desc";
-                //if (jo.getJSONObject(i).get("description").toString() == null)
-                //    description = "This resource did not provide a description";
-                //else
-                //    description = jo.getJSONObject(i).get("description").toString();
-                pwd[0] = phone;
-                pwd[1] = website;
-                pwd[2] = description;
+                    //res += "website: " + website + "\n";
+                }
+                if (jo.getJSONObject(i).get("description").toString() == null ||
+                        jo.getJSONObject(i).get("description").toString().equals(""))
+                    description = "";
+                    //res += "";
+                else {
+                    description = jo.getJSONObject(i).get("description").toString();
+                    //res += "description: " + website + "\n";
+                }
+                if (jo.getJSONObject(i).get("location").toString() == null ||
+                        jo.getJSONObject(i).get("location").toString().equals(""))
+                    location = "";
+                    //res += "";
+                else {
+                    location = jo.getJSONObject(i).get("location").toString();
+                    //res += "description: " + website + "\n";
+                }
+                if (jo.getJSONObject(i).get("zipcode").toString() == null ||
+                        jo.getJSONObject(i).get("zipcode").toString().equals(""))
+                    zipcode = "";
+                    //res += "";
+                else {
+                    location = jo.getJSONObject(i).get("zipcode").toString();
+                    //res += "description: " + website + "\n";
+                }
+                if (jo.getJSONObject(i).get("latitude").toString() == null ||
+                        jo.getJSONObject(i).get("latitude").toString().equals(""))
+                    lat = "";
+                    //res += "";
+                else {
+                    lat = jo.getJSONObject(i).get("latitude").toString();
+                    //res += "description: " + website + "\n";
+                }
+                if (jo.getJSONObject(i).get("longitude").toString() == null ||
+                        jo.getJSONObject(i).get("longitude").toString().equals(""))
+                    lon = "";
+                    //res += "";
+                else {
+                    lon = jo.getJSONObject(i).get("longitude").toString();
+                    //res += "description: " + website + "\n";
+                }
+
+
+                attributes[0] = phone;
+                attributes[1] = website;
+                attributes[2] = description;
+                attributes[3] = location;
+                attributes[4] = zipcode;
+                attributes[5] = lat;
+                attributes[6] = lon;
+
                 //Log.v("age", description);
-                resources.put(name, pwd);
+                resources.put(name, attributes);
             }
-             */
+            return res;
 
-
-
+            /*
             res += "name: " + jo.get("name").toString() + "\n";
             res += "phone: " + jo.get("phone").toString() + "\n";
             if (jo.get("website").toString() == null || jo.get("website").toString().equals(""))
                 res += "";
-            else res += "website: " + jo.get("website").toString() + "\n";
+            else {
+                res += "website: " + jo.get("website").toString() + "\n";
+            }
+            if (jo.get("description").toString() == null || jo.get("description").toString().equals(""))
+                res += "";
+            else res += "description: " + jo.get("description").toString() + "\n";
             if (jo.get("description").toString() == null || jo.get("description").toString().equals(""))
                 res += "";
             else res += "description: " + jo.get("description").toString() + "\n";
             SpannableString ss = new SpannableString(jo.get("phone").toString());
             ClickableSpan clickableSpan = new ClickableSpan() {
-
-
                 @Override
                 public void onClick(View textView) {
                     try {
@@ -102,18 +149,10 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
                         e.printStackTrace();
                     }
                 }
-
-
-                /*
-                @Override
-                public void updateDrawState(TextPaint ds) {
-                    super.updateDrawState(ds);
-                }
-                 */
             };
             ss.setSpan(clickableSpan, 0, 10, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             return res;
-
+*/
         }
         catch (Exception e) {
             String ex = "";
@@ -129,10 +168,6 @@ public class AccessWebTask extends AsyncTask<URL, String, String> {
             else ex += "description: "  + description;
             return ex;
         }
-    }
-    private String dialContactPhone(String phoneNumber) {
-            new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phoneNumber, null));
-            return phoneNumber;
     }
     @Override
     protected void onPostExecute(String s) {
