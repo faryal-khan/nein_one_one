@@ -8,10 +8,14 @@ mongoose.connect('mongodb://localhost:27017/myDatabase');
 var Schema = mongoose.Schema;
 
 var resourceSchema = new Schema({
-    name: {type: String, required: true, unique: true, uniqueCaseInsensitive: true},
+    name: { type: String, required: true, unique: true, uniqueCaseInsensitive: true },
     website: String,
-    phone: {type: String, required: true},
-    description: String
+    phone: { type: String, required: true },
+    description: String,
+    location: String,
+    zipcode: Number,
+    latitude: Number,
+    longitude: Number
 });
 
 // export personSchema as a class called Resource

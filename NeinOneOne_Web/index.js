@@ -13,6 +13,8 @@ app.set('views', __dirname + '/public');
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
+const http = require('http');
+
 // import the Resource class from Resource.js
 var Resource = require('./Resource.js');
 var Suggestion = require('./Suggestion.js');
@@ -24,29 +26,78 @@ var Suggestion = require('./Suggestion.js');
 
 
 app.use('/create', (req, res) => {
-	// construct the Resource from the form data which is in the request body
-	var newResource = new Resource({
-		name: req.body.name.trim(),
-		website: req.body.website.trim(),
-		phone: req.body.phone.trim(),
-		description: req.body.description.trim(),
-	});
 
+	var searchZipcode = req.body.zipcode.trim();
+
+	//if the user entered zipcode information
+	if (searchZipcode) {
+
+		var url = 'http://api.positionstack.com/v1/forward?access_key=c19118447bc587fb3352ef92eeddd47c&query=zipcode:' + searchZipcode;
+		console.log(url);
+		http.get(url, (resp) => {
+			let data = '';
+
+			// A chunk of data has been received.
+			resp.on('data', (chunk) => {
+				data += chunk;
+			});
+
+			// The whole response has been received. Print out the result.
+			resp.on('end', () => {
+
+				var locations = JSON.parse(data).data;
+
+				locations.forEach((loc) => {
+					//if the result is in the US and zipcode matches
+					if (loc.country_code == 'USA' || loc.country_code == 'US') {
+						if (loc.postal_code && loc.postal_code.includes(req.body.zipcode.trim())) {
+							console.log(loc);
+							var lat = loc.latitude;
+							var long = loc.longitude;
+							createNewResource(req, res, lat, long);
+							return;
+						}
+					}
+				});
+			});
+
+		}).on("error", (err) => {
+			console.log("Error: " + err.message);
+		});
+	} else {
+		createNewResource(req, res, 0, 0);
+	}
+}
+);
+
+// construct the Resource from the form data which is in the request body
+function createNewResource(request, response, lat, long) {
+	var newResource = new Resource({
+		name: request.body.name.trim(),
+		website: request.body.website.trim(),
+		phone: request.body.phone.trim(),
+		description: request.body.description.trim(),
+		location: request.body.street.trim() + ' ' + request.body.city.trim() + ', '
+			+ request.body.state.trim() + ' ' + request.body.zipcode.trim(),
+		zipcode: request.body.zipcode.trim(),
+		latitude: lat,
+		longitude: long
+	});
 	// save the Resource to the database
 	newResource.save((err) => {
 		if (err) {
-			res.type('html').status(200);
-			res.write('uh oh: ' + err);
+			response.type('html').status(200);
+			response.write('uh oh: ' + err);
 			console.log(err);
-			res.end();
+			response.end();
 		}
 		else {
 			// display the "successfully created" message
-			res.send('Successfully added ' + newResource.name + ' to the database');
+			response.send('Successfully added ' + newResource.name + ' to the database');
+			//return;
 		}
 	});
 }
-);
 
 app.post('/suggest', (req, res) => {
 	var newSuggestion = new Suggestion({
@@ -102,6 +153,9 @@ app.use('/list', (req, res) => {
 					res.write('<li>Description: ' + resource.description + '</li>'
 						+ '<li>Phone Number: ' + resource.phone + '</li>'
 						+ '<li>Website: ' + resource.website + '</li>'
+						+ '<li>Location: ' + resource.location + '</li>'
+						+ '<li>Latitude: ' + resource.latitude + '</li>'
+						+ '<li>Longitude: ' + resource.longitude
 						+ '<br>');
 					res.write('</ul>');
 				});
