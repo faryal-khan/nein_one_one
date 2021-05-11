@@ -32,7 +32,8 @@ app.use('/create', (req, res) => {
 	//if the user entered zipcode information
 	if (searchZipcode) {
 
-		var url = 'http://api.positionstack.com/v1/forward?access_key=c19118447bc587fb3352ef92eeddd47c&query=zipcode:' + searchZipcode;
+		var url = 'http://api.positionstack.com/v1/forward?access_key=c19118447bc587fb3352ef92eeddd47c&query=zipcode:'
+			+ searchZipcode + '&country_code:USA';
 		console.log(url);
 		http.get(url, (resp) => {
 			let data = '';
@@ -47,18 +48,17 @@ app.use('/create', (req, res) => {
 
 				var locations = JSON.parse(data).data;
 
-				locations.forEach((loc) => {
-					//if the result is in the US and zipcode matches
-					if (loc.country_code == 'USA' || loc.country_code == 'US') {
-						if (loc.postal_code && loc.postal_code.includes(req.body.zipcode.trim())) {
-							console.log(loc);
-							var lat = loc.latitude;
-							var long = loc.longitude;
-							createNewResource(req, res, lat, long);
-							return;
-						}
-					}
-				});
+				// if no location with given zipcode is found, print out message and return
+				if (locations.length == 0) {
+					res.type('html').status(200);
+					res.write('Zipcode not found.');
+					res.end();
+					return;
+				}
+
+				var lat = locations[0].latitude;
+				var long = locations[0].longitude;
+				createNewResource(req, res, lat, long);
 			});
 
 		}).on("error", (err) => {
@@ -94,7 +94,6 @@ function createNewResource(request, response, lat, long) {
 		else {
 			// display the "successfully created" message
 			response.send('Successfully added ' + newResource.name + ' to the database');
-			//return;
 		}
 	});
 }
