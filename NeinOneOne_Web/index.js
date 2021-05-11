@@ -218,7 +218,9 @@ app.use('/api', (req, res) => {
 			// send back a single JSON object
 			res.json({
 				"name": resource.name, "website": resource.website,
-				"phone": resource.phone, "description": resource.description
+				"phone": resource.phone, "description": resource.description, 
+				"location": resource.location, "zipcode": resource.zipcode,
+				"latitude": resource.latitude, "longitude": resource.longitude
 			});
 		}
 		else {
@@ -227,7 +229,9 @@ app.use('/api', (req, res) => {
 			resources.forEach((resource) => {
 				returnArray.push({
 					"name": resource.name, "website": resource.website,
-					"phone": resource.phone, "description": resource.description
+					"phone": resource.phone, "description": resource.description,
+					"location": resource.location, "zipcode": resource.zipcode,
+					"latitude": resource.latitude, "longitude": resource.longitude
 				});
 			});
 			// send it back as JSON Array
