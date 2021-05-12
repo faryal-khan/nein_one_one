@@ -217,7 +217,7 @@ app.use('/api', (req, res) => {
 			// send back a single JSON object
 			res.json({
 				"name": resource.name, "website": resource.website,
-				"phone": resource.phone, "description": resource.description, 
+				"phone": resource.phone, "description": resource.description,
 				"location": resource.location, "zipcode": resource.zipcode,
 				"latitude": resource.latitude, "longitude": resource.longitude
 			});
@@ -294,52 +294,228 @@ app.use('/search', (req, res) => {
 		key = req.query.keyword;
 	}
 
-	// find all the Resource objects in the database
-	Resource.find({}, (err, resourceList) => {
-		if (err) {
-			res.type('html').status(200);
-			console.log('error: ' + err);
-			res.write(err);
-		}
-		else {
-			if (resourceList.length == 0) {
+	// construct the location query object
+	var locationQueryObject = {};
+	var zip = '';
+	if (req.body.location) {
+		// if there's a location in the body parameter, use it here
+		locationQueryObject = { "location": req.body.location };
+		zip = req.body.location;
+	}
+	else if (req.query.location) {
+		// if there's a location in the query parameter, use it here
+		locationQueryObject = { "location": req.query.zipcode };
+		zip = req.query.zipcode;
+	}
+
+	// convert the location entered by admin into latitude and longitude
+	var url = 'http://api.positionstack.com/v1/forward?access_key=c19118447bc587fb3352ef92eeddd47c&query=zipcode:'
+		+ zip + '&country_code:USA';
+
+	// HTTP request to get location from the  url
+	http.get(url, (resp) => {
+		let data = '';
+
+		// A chunk of data has been received.
+		resp.on('data', (chunk) => {
+			data += chunk;
+		});
+
+		// The whole response has been received. Print out the result.
+		resp.on('end', () => {
+			var locations = JSON.parse(data).data;
+
+			// if no location with given zipcode is found, print out message and return
+			if (locations.length == 0) {
 				res.type('html').status(200);
-				res.write('There are no resources.');
+				res.write('Zipcode not found.');
 				res.end();
 				return;
 			}
-			else {
-				res.type('html').status(200);
-				if (key == '') {
-					res.write('Please enter a search term.');
-					res.end();
-				} else {
-					res.write("Here are all the resources in the database containing '" + key + "':");
-					res.write('<ol>');
-					var count = 0;
-					resourceList.forEach((resource) => {
-						// check if name or description contain keyword
-						if (resource.name.includes(key) || resource.description.includes(key)) {
-							count++;
-							res.write('<li>' + resource.name);
-							res.write('<ul>');
-							res.write('<li>Description: ' + resource.description + '</li>'
-								+ '<li>Phone Number: ' + resource.phone + '</li>'
-								+ '<li>Website: ' + resource.website + '</li>'
-								+ '<br>');
-							res.write('</ul>');
-						}
-					});
-					if (count == 0) {
-						res.write("There are no resources containing '" + key + "'.");
-					}
-					res.write('</ol>');
-					res.end();
+
+			// Use the first location from the array as the location we want
+			var lat = locations[0].latitude;
+			var long = locations[0].longitude;
+
+
+			// find all the Resource objects in the database
+			Resource.find({}, (err, resourceList) => {
+				if (err) {
+					res.type('html').status(200);
+					console.log('error: ' + err);
+					res.write(err);
 				}
-			}
-		}
+				else {
+					if (resourceList.length == 0) {
+						res.type('html').status(200);
+						res.write('There are no resources.');
+						res.end();
+						return;
+					}
+					else {
+						res.type('html').status(200);
+
+						// If key and zip are both empty
+						if (key == '' && zip == '') {
+							res.write('Please enter a search term.');
+							res.end();
+						}
+
+						// Search based on only keyword - if zip is empty but not key 
+						else if (zip == '' && key != '') {
+							res.write("Here are all the resources in the database containing '" + key + "':");
+							res.write('<ol>');
+							var keywordCount = 0;
+
+							resourceList.forEach((resource) => {
+								// check if name or description contain keyword
+								if (resource.name.includes(key) || resource.description.includes(key)) {
+									keywordCount++;
+
+									res.write('<li>' + resource.name);
+									res.write('<ul>');
+									res.write('<li>Description: ' + resource.description + '</li>'
+										+ '<li>Phone Number: ' + resource.phone + '</li>'
+										+ '<li>Website: ' + resource.website + '</li>'
+										+ '<br>');
+									res.write('</ul>');
+								}
+							});
+							if (keywordCount == 0) {
+								res.write("There are no resources containing '" + key + "'.");
+							}
+							res.write('</ol>');
+							res.end();
+						}
+
+						// Search based on only location - if key is empty but not zip 
+						else if (key == '' && zip != '') {
+							var locationList = getNearbyLocations(resourceList, lat, long);
+
+							res.write("Here are all the resources in the database containing '" + zip + "':");
+							res.write('<ol>');
+
+							locationList.forEach((location) => {
+								var resource = location.resource;
+
+								res.write('<li>' + resource.name);
+								res.write('<ul>');
+								res.write('<li>Description: ' + resource.description + '</li>'
+									+ '<li>Phone Number: ' + resource.phone + '</li>'
+									+ '<li>Website: ' + resource.website + '</li>'
+									+ '<li>Zipcode: ' + resource.zipcode + '</li>'
+									+ '<li>Lat, Long: ' + resource.latitude + ', ' + resource.longitude + '</li>'
+									+ '<br>');
+								res.write('</ul>');
+							});
+
+							if (locationList.length == 0) {
+								res.write("There are no resources containing '" + zip + "'.");
+							}
+							res.write('</ol>');
+							res.end();
+						}
+
+						// Search based on keyword AND location (not OR) - if both keyword and location are given 
+						else {
+							var locationList = getNearbyLocations(resourceList, lat, long);
+
+							// If there are no nearby locations
+							// if (locationList.length == 0) {
+							// Expand the radius or only search by keyword?
+							// }
+
+							res.write("Here are all the resources in the database for '" + zip + "'and containing '" + key + "':");
+							res.write('<ol>');
+							var count = 0;
+
+							locationList.forEach((location) => {
+								var resource = location.resource;
+
+								if (resource.name.includes(key) || resource.description.includes(key)) {
+									count++;
+
+									res.write('<li>' + resource.name);
+									res.write('<ul>');
+									res.write('<li>Description: ' + resource.description + '</li>'
+										+ '<li>Phone Number: ' + resource.phone + '</li>'
+										+ '<li>Website: ' + resource.website + '</li>'
+										+ '<li>Zipcode: ' + resource.zipcode + '</li>'
+										+ '<li>Lat, Long: ' + resource.latitude + ', ' + resource.longitude + '</li>'
+										+ '<br>');
+									res.write('</ul>');
+								}
+							});
+
+							if (count == 0) {
+								res.write("There are no resources containing for '" + zip + "'and containing '" + key + "'.");
+								res.end();
+							}
+							res.write('</ol>');
+							res.end();
+						}
+					}
+				}
+			});
+		}); // end
+	}).on("error", (err) => {
+		console.log("Error: " + err.message);
 	});
 });
+
+// Function to return a list of resources that are nearby the zipcode being searched for 
+function getNearbyLocations(resourceList, lat, long) {
+
+	// A list of maps that contains resources and their distance from the zipcode the admin entered
+	var locationList = [];
+
+	// check if resources are in a 10 mile radius
+	resourceList.forEach((resource) => {
+
+		// Skip resources without location
+		if (typeof resource.latitude == 'undefined' || typeof resource.longitude == 'undefined' || resource.latitude == null || resource.longitude == null || resource.latitude == 0 || resource.longitude == 0)
+			return true;
+
+		var d = calculateGreatCircleDist(lat, long, resource.latitude, resource.longitude);
+
+		if (d <= 10) {
+			// Add resource and its distance to list 
+			locationList.push({ 'resource': resource, 'distance': d });
+		}
+	});
+
+	// Sort locationList by distance
+	locationList.sort((a, b) => (a.distance > b.distance) ? 1 : ((b.distance > a.distance) ? -1 : 0));
+
+	return locationList;
+}
+
+// Calculate the great circle distance between two locations
+function calculateGreatCircleDist(lat1, long1, lat2, long2) {
+	// https://stackoverflow.com/questions/27928/calculate-distance-between-two-latitude-longitude-points-haversine-formula 
+
+	const radius = 3956.0; 			// Radius of the earth in miles
+	var lat = degreeToRadian(lat2 - lat1);
+	var long = degreeToRadian(long2 - long1);
+	var lat1rad = degreeToRadian(lat1);
+	var lat2rad = degreeToRadian(lat2);
+
+	var sin = Math.sin;
+	var cos = Math.cos;
+
+	// var a = sin(lat / 2) * sin(lat / 2) + cos(degreeToRadian(lat1)) * cos(degreeToRadian(lat2)) * sin(long / 2) * sin(long / 2);
+	// var c = 2 * Math.atan(Math.sqrt(a), Math.sqrt(1 - a));
+	// var d = radius * c; 	// Distance in miles
+	// return d;
+
+	var dist = radius * Math.acos(sin(lat1rad) * sin(lat2rad) + cos(lat1rad) * cos(lat2rad) * cos(long));
+
+	return dist;
+}
+
+function degreeToRadian(deg) {
+	return deg * (Math.PI / 180);
+}
 
 app.use('/approve', (req, res) => {
 	res.type('html').status(200);
