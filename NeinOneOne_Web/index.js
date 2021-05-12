@@ -143,23 +143,7 @@ app.use('/list', (req, res) => {
 			}
 			else {
 				res.type('html').status(200);
-				res.write('Here are all the resources in the database:');
-				res.write('<ol>');
-				// show all the resources
-				resourceList.forEach((resource) => {
-					res.write('<li>' + resource.name);
-					res.write('<ul>');
-					res.write('<li>Description: ' + resource.description + '</li>'
-						+ '<li>Phone Number: ' + resource.phone + '</li>'
-						+ '<li>Website: ' + resource.website + '</li>'
-						+ '<li>Location: ' + resource.location + '</li>'
-						+ '<li>Latitude: ' + resource.latitude + '</li>'
-						+ '<li>Longitude: ' + resource.longitude
-						+ '<br>');
-					res.write('</ul>');
-				});
-				res.write('</ol>');
-				res.end();
+				res.render('list_resources.html', { resourcesArr: resourceList });
 			}
 		}
 	});
@@ -363,57 +347,39 @@ app.use('/search', (req, res) => {
 
 						// Search based on only keyword - if zip is empty but not key 
 						else if (zip == '' && key != '') {
-							res.write("Here are all the resources in the database containing '" + key + "':");
-							res.write('<ol>');
-							var keywordCount = 0;
+							var keywordList = [];
 
 							resourceList.forEach((resource) => {
 								// check if name or description contain keyword
 								if (resource.name.includes(key) || resource.description.includes(key)) {
-									keywordCount++;
-
-									res.write('<li>' + resource.name);
-									res.write('<ul>');
-									res.write('<li>Description: ' + resource.description + '</li>'
-										+ '<li>Phone Number: ' + resource.phone + '</li>'
-										+ '<li>Website: ' + resource.website + '</li>'
-										+ '<br>');
-									res.write('</ul>');
+									keywordList.push(resource);
 								}
 							});
-							if (keywordCount == 0) {
+
+							if (keywordList.length == 0) {
 								res.write("There are no resources containing '" + key + "'.");
+								res.end();
 							}
-							res.write('</ol>');
-							res.end();
+							else {
+								res.render('print_searchresults.html', { resourcesArr: keywordList, keyword: key, location: zip });
+							}
 						}
 
 						// Search based on only location - if key is empty but not zip 
 						else if (key == '' && zip != '') {
 							var locationList = getNearbyLocations(resourceList, lat, long);
 
-							res.write("Here are all the resources in the database containing '" + zip + "':");
-							res.write('<ol>');
-
-							locationList.forEach((location) => {
-								var resource = location.resource;
-
-								res.write('<li>' + resource.name);
-								res.write('<ul>');
-								res.write('<li>Description: ' + resource.description + '</li>'
-									+ '<li>Phone Number: ' + resource.phone + '</li>'
-									+ '<li>Website: ' + resource.website + '</li>'
-									+ '<li>Zipcode: ' + resource.zipcode + '</li>'
-									+ '<li>Lat, Long: ' + resource.latitude + ', ' + resource.longitude + '</li>'
-									+ '<br>');
-								res.write('</ul>');
-							});
-
 							if (locationList.length == 0) {
 								res.write("There are no resources containing '" + zip + "'.");
+								res.end();
 							}
-							res.write('</ol>');
-							res.end();
+							else {
+								var locationResources = [];
+								locationList.forEach((location) => {
+									locationResources.push(location.resource);
+								});
+								res.render('print_searchresults.html', { resourcesArr: locationResources, keyword: key, location: zip });
+							}
 						}
 
 						// Search based on keyword AND location (not OR) - if both keyword and location are given 
@@ -425,34 +391,23 @@ app.use('/search', (req, res) => {
 							// Expand the radius or only search by keyword?
 							// }
 
-							res.write("Here are all the resources in the database for '" + zip + "'and containing '" + key + "':");
-							res.write('<ol>');
-							var count = 0;
+							var finalList = [];
 
 							locationList.forEach((location) => {
 								var resource = location.resource;
 
 								if (resource.name.includes(key) || resource.description.includes(key)) {
-									count++;
-
-									res.write('<li>' + resource.name);
-									res.write('<ul>');
-									res.write('<li>Description: ' + resource.description + '</li>'
-										+ '<li>Phone Number: ' + resource.phone + '</li>'
-										+ '<li>Website: ' + resource.website + '</li>'
-										+ '<li>Zipcode: ' + resource.zipcode + '</li>'
-										+ '<li>Lat, Long: ' + resource.latitude + ', ' + resource.longitude + '</li>'
-										+ '<br>');
-									res.write('</ul>');
+									finalList.push(resource);
 								}
 							});
 
-							if (count == 0) {
+							if (finalList.length == 0) {
 								res.write("There are no resources containing for '" + zip + "'and containing '" + key + "'.");
 								res.end();
 							}
-							res.write('</ol>');
-							res.end();
+							else {
+								res.render('print_searchresults.html', { resourcesArr: finalList, keyword: key, location: zip });
+							}
 						}
 					}
 				}

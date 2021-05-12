@@ -67,10 +67,10 @@
             <h4>Suggested resources:</h4><br>
 
             <% for(var i=0; i<suggestionsArr.length; i++){ %>
-                <div class="container-fluid border border-secondary rounded mb-3 mt-3">
-                    <p class="fw-bold">
+                <div class="container-fluid rounded mb-3 mt-3 pt-2 pb-2 resourceBox">
+                    <h5>
                         <%= suggestionsArr[i].name %>
-                    </p>
+                    </h5>
                     <p>
                         Phone Number: <%= suggestionsArr[i].phone %>
                     </p>
@@ -88,7 +88,7 @@
                             </form>
                         </div>
                         <div class="col-2">
-                            <form action="/delete" method="POST">
+                            <form action="#" method="POST">
                                 <button type="submit" class="btn btn-secondary">Delete</button>
                             </form>
                         </div>
