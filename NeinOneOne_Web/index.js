@@ -473,10 +473,46 @@ function degreeToRadian(deg) {
 }
 
 app.use('/approve', (req, res) => {
-	res.type('html').status(200);
-	res.write("Approve endpoint to be triggered");
-	res.end();
+
+	var filter = { 'name': req.query.name };
+
+	console.log(req.query.name);
+	
+	Suggestion.findOneAndDelete(filter, (err,suggestion) => {
+		if (err) {
+			res.json({ 'status': err });
+		}
+		else if (!suggestion) {
+			res.json({ 'status': 'no suggestion' });
+		}
+		else {
+			var newResource = new Resource({
+				name: suggestion.name,
+				website: suggestion.website,
+				phone: suggestion.phone,
+				description: suggestion.description,
+				//location: request.body.street.trim() + ' ' + request.body.city.trim() + ', '
+				//	+ request.body.state.trim() + ' ' + request.body.zipcode.trim(),
+				//zipcode: request.body.zipcode.trim(),
+				//latitude: lat,
+				//longitude: long
+			});
+
+			newResource.save((err) => {
+				if (err) {
+					res.json({'status': err});
+				}
+				else {
+					// display the "successfully created" message
+					res.send('Successfully added ' + newResource.name + ' to the database');
+				}
+			});
+		}
+	});
+	// save the Resource to the database
+
 });
+
 
 app.use('/delete', (req, res) => {
 	var filter = { 'name': req.query.name };
@@ -493,6 +529,24 @@ app.use('/delete', (req, res) => {
 		}
 	});
 });
+
+app.use('/disapprove', (req, res) => {
+	var filter = { 'name': req.query.name };
+
+	Suggestion.findOneAndDelete(filter, (err, orig) => {
+		if (err) {
+			res.json({ 'status': err });
+		}
+		else if (!orig) {
+			res.json({ 'status': 'no suggestion' });
+		}
+		else {
+			res.json({ 'status': 'success' });
+		}
+	});
+});
+
+
 /*************************************************/
 
 app.use('/public', express.static('public'));
