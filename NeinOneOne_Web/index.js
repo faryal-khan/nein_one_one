@@ -231,8 +231,8 @@ app.use('/api', (req, res) => {
 });
 
 function updateZipUtil(req, res, lat, long) {
-	var filter = { 'name': req.body.name};
-	var action = { '$set': { 'latitude': lat, 'longitude': long} };
+	var filter = { 'name': req.body.name };
+	var action = { '$set': { 'latitude': lat, 'longitude': long } };
 
 	Resource.findOneAndUpdate(filter, action, (err, orig) => {
 		/*
@@ -249,76 +249,76 @@ function updateZipUtil(req, res, lat, long) {
 	});
 }
 
-function updateZip(req,res){
+function updateZip(req, res) {
 	var searchZipcode = req.body.zipcode.trim();
 	var url = 'http://api.positionstack.com/v1/forward?access_key=c19118447bc587fb3352ef92eeddd47c&query=zipcode:'
-			+ searchZipcode + '&country_code:USA';
-		console.log(url);
-		http.get(url, (resp) => {
-			let data = '';
+		+ searchZipcode + '&country_code:USA';
+	console.log(url);
+	http.get(url, (resp) => {
+		let data = '';
 
-			// A chunk of data has been received.
-			resp.on('data', (chunk) => {
-				data += chunk;
-			});
-
-			// The whole response has been received. Print out the result.
-			resp.on('end', () => {
-
-				var locations = JSON.parse(data).data;
-
-				// if no location with given zipcode is found, print out message and return
-				if (locations.length == 0) {
-					res.type('html').status(200);
-					res.write('Zipcode not found.');
-					res.end();
-					return;
-				}
-
-				var lat = locations[0].latitude;
-				var long = locations[0].longitude;
-				updateZipUtil(req, res, lat, long);
-			});
+		// A chunk of data has been received.
+		resp.on('data', (chunk) => {
+			data += chunk;
 		});
+
+		// The whole response has been received. Print out the result.
+		resp.on('end', () => {
+
+			var locations = JSON.parse(data).data;
+
+			// if no location with given zipcode is found, print out message and return
+			if (locations.length == 0) {
+				res.type('html').status(200);
+				res.write('Zipcode not found.');
+				res.end();
+				return;
+			}
+
+			var lat = locations[0].latitude;
+			var long = locations[0].longitude;
+			updateZipUtil(req, res, lat, long);
+		});
+	});
 }
 
-function updateWebsite(req, res){
-	var filter = { 'name': req.body.name.trim()};
-	var action = {'$set': {'website': req.body.website.trim()}};
+function updateWebsite(req, res) {
+	var filter = { 'name': req.body.name.trim() };
+	var action = { '$set': { 'website': req.body.website.trim() } };
 	Resource.findOneAndUpdate(filter, action, (err, orig) => {
 	});
 }
 
-function updatePhone(req,res){
-	var filter = { 'name': req.body.name.trim()};
-	var action = {'$set': {'phone': req.body.phone.trim()}};
+function updatePhone(req, res) {
+	var filter = { 'name': req.body.name.trim() };
+	var action = { '$set': { 'phone': req.body.phone.trim() } };
 	Resource.findOneAndUpdate(filter, action, (err, orig) => {
 	});
 }
 
-function updateDescription(req,res){
-	var filter = { 'name': req.body.name.trim()};
-	var action = {'$set': {'description': req.body.description.trim()}};
+function updateDescription(req, res) {
+	var filter = { 'name': req.body.name.trim() };
+	var action = { '$set': { 'description': req.body.description.trim() } };
 	Resource.findOneAndUpdate(filter, action, (err, orig) => {
 	});
 }
 
-function updateLocation(req,res){
-	var filter = { 'name': req.body.name.trim()};
-	var action = {'$set': {'location': req.body.street.trim() + ' ' + req.body.city.trim() + ' ' + req.body.state.trim() + ' ' + req.body.zipcode.trim()}};
+function updateLocation(req, res) {
+	var filter = { 'name': req.body.name.trim() };
+	var action = { '$set': { 'location': req.body.street.trim() + ' ' + req.body.city.trim() + ' ' + req.body.state.trim() + ' ' + req.body.zipcode.trim() } };
 	Resource.findOneAndUpdate(filter, action, (err, orig) => {
 	});
 }
 
 app.use('/update', (req, res) => {
-	var filter = { 'name': req.body.name};
+	var filter = { 'name': req.body.name };
 	console.log(req.body.website);
 	var action = null;
 
 	//if the user entered zipcode information
 
-	if(req.body.zipcode){
-		updateZip(req,res);
+	if (req.body.zipcode) {
+		updateZip(req, res);
 	}
 
 	var newZip = req.body.zipcode;
@@ -326,40 +326,40 @@ app.use('/update', (req, res) => {
 	var newPhone = req.body.phone.trim();
 	var newDesc = req.body.description.trim();
 	var newLoc = req.body.street.trim() + ' ' + req.body.city.trim() + ' ' + req.body.state.trim() + ' ' + req.body.zipcode.trim();
-	
-	
-	if(newWeb && newPhone && newDesc && newZip){
-		action = {'$set': {'website': newWeb, 'phone': newPhone, 'location': newLoc, 'description': newDesc}};
-	}else if(newWeb && newPhone && newDesc){
-		action = {'$set': {'website': newWeb, 'phone': newPhone, 'description': newDesc}};
-	}else if(newWeb && newPhone && newZip){
-		action = {'$set': {'website': newWeb, 'phone': newPhone, 'location': newLoc}};
-	}else if(newWeb && newDesc && newZip){
-		action = {'$set': {'website': newWeb, 'location': newLoc, 'description': newDesc}};
-	}else if(newPhone && newDesc && newZip){
-		action = {'$set': {'phone': newPhone, 'location': newLoc, 'description': newDesc}};
-	}else if(newWeb && newPhone){
-		action = {'$set': {'website': newWeb, 'phone': newPhone}};
-	}else if(newWeb && newDesc){
-		action = {'$set': {'website': newWeb, 'description': newDesc}};
-	}else if(newWeb && newZip){
-		action = {'$set': {'website': newWeb, 'location': newLoc}};
-	}else if(newPhone && newDesc){
-		action = {'$set': {'phone': newPhone, 'description': newDesc}};
-	}else if(newPhone && newZip){
-		action = {'$set': {'phone': newPhone, 'location': newLoc}};
-	}else if(newDesc && newZip){
-		action = {'$set': {'location': newLoc, 'description': newDesc}};
-	}else if(newWeb){
-		action = {'$set': {'website': newWeb}};
-	}else if(newPhone){
-		action = {'$set': {'phone': newPhone}};
-	}else if(newDesc){
-		action = {'$set': {'description': newDesc}};
-	}else if(newZip){
-		action = {'$set': {'location': newLoc}};
+
+
+	if (newWeb && newPhone && newDesc && newZip) {
+		action = { '$set': { 'website': newWeb, 'phone': newPhone, 'location': newLoc, 'description': newDesc } };
+	} else if (newWeb && newPhone && newDesc) {
+		action = { '$set': { 'website': newWeb, 'phone': newPhone, 'description': newDesc } };
+	} else if (newWeb && newPhone && newZip) {
+		action = { '$set': { 'website': newWeb, 'phone': newPhone, 'location': newLoc } };
+	} else if (newWeb && newDesc && newZip) {
+		action = { '$set': { 'website': newWeb, 'location': newLoc, 'description': newDesc } };
+	} else if (newPhone && newDesc && newZip) {
+		action = { '$set': { 'phone': newPhone, 'location': newLoc, 'description': newDesc } };
+	} else if (newWeb && newPhone) {
+		action = { '$set': { 'website': newWeb, 'phone': newPhone } };
+	} else if (newWeb && newDesc) {
+		action = { '$set': { 'website': newWeb, 'description': newDesc } };
+	} else if (newWeb && newZip) {
+		action = { '$set': { 'website': newWeb, 'location': newLoc } };
+	} else if (newPhone && newDesc) {
+		action = { '$set': { 'phone': newPhone, 'description': newDesc } };
+	} else if (newPhone && newZip) {
+		action = { '$set': { 'phone': newPhone, 'location': newLoc } };
+	} else if (newDesc && newZip) {
+		action = { '$set': { 'location': newLoc, 'description': newDesc } };
+	} else if (newWeb) {
+		action = { '$set': { 'website': newWeb } };
+	} else if (newPhone) {
+		action = { '$set': { 'phone': newPhone } };
+	} else if (newDesc) {
+		action = { '$set': { 'description': newDesc } };
+	} else if (newZip) {
+		action = { '$set': { 'location': newLoc } };
 	}
-	
+
 	/*
 	if (req.body.website && req.body.phone && req.body.description && req.body.zipcode) {
 		action = { '$set': { 'website': req.body.website, 'phone': req.body.phone, 
@@ -398,7 +398,7 @@ app.use('/update', (req, res) => {
 		action = { '$set': { 'description': req.body.description} };
 	}
 	*/
-	
+
 	if (action != null) {
 		Resource.findOneAndUpdate(filter, action, (err, orig) => {
 			if (err) {
@@ -525,7 +525,7 @@ app.use('/search', (req, res) => {
 							var locationList = getNearbyLocations(resourceList, lat, long);
 
 							if (locationList.length == 0) {
-								res.write("There are no resources containing '" + zip + "'.");
+								res.write("There are no resources near '" + zip + "'.");
 								res.end();
 							}
 							else {
@@ -541,10 +541,11 @@ app.use('/search', (req, res) => {
 						else {
 							var locationList = getNearbyLocations(resourceList, lat, long);
 
-							// If there are no nearby locations
-							// if (locationList.length == 0) {
-							// Expand the radius or only search by keyword?
-							// }
+							// If there are no nearby locations - print nothing
+							if (locationList.length == 0) {
+								res.send("There are no resources near '" + zip + "' and containing '" + key + "'.");
+								return;
+							}
 
 							var finalList = [];
 
@@ -557,7 +558,7 @@ app.use('/search', (req, res) => {
 							});
 
 							if (finalList.length == 0) {
-								res.write("There are no resources containing for '" + zip + "'and containing '" + key + "'.");
+								res.write("There are no resources near '" + zip + "' and containing '" + key + "'.");
 								res.end();
 							}
 							else {
@@ -629,7 +630,7 @@ function degreeToRadian(deg) {
 
 app.use('/approve', (req, res) => {
 
-	var filter = { 'name': req.query.name};
+	var filter = { 'name': req.query.name };
 
 	console.log(req.query.name);
 
