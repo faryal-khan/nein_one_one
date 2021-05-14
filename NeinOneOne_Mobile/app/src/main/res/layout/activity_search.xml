@@ -35,14 +35,23 @@
             android:text=" "
             android:textColor="@color/black"
             android:textSize="24sp"
-            android:autoLink = "phone"
             />
+
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Finish"
             android:gravity="center"
-            android:onClick="onFinishButtonClick"/>
+            android:onClick="onFinishButtonClick"
+            android:text="Finish" />
+
+        <TextView
+            android:id="@+id/phoneCall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autoLink="phone"
+            android:text=" "
+            android:textColor="@color/black"
+            android:textSize="24sp" />
 
     </LinearLayout>
 
