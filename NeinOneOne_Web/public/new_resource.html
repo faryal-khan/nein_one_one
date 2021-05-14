@@ -30,6 +30,18 @@
                 return false;
             }
 
+            // Check that at least one address option is selected
+            var chx = document.getElementsByName('addressOption');
+            for (var i = 0; i < chx.length; i++) {
+                // Return true from the function on first match of a checked item
+                if (chx[i].type == 'radio' && chx[i].checked) {
+                    return true;
+                }
+            }
+            // End of the loop, return false
+            alert('Please select an address option')
+            return false;
+
             // Validation for zipcode
             if (address == 'yes' && (zip == null || zip.trim() == "")) {
                 alert("Please enter a ZIP Code.");

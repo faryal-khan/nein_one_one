@@ -77,7 +77,7 @@ function createNewResource(request, response, lat, long) {
 		website: request.body.website.trim(),
 		phone: request.body.phone.trim(),
 		description: request.body.description.trim(),
-		location: request.body.street.trim() + ' ' + request.body.city.trim() + ', '
+		location: request.body.street.trim() + ' ' + request.body.city.trim() + ' '
 			+ request.body.state.trim() + ' ' + request.body.zipcode.trim(),
 		zipcode: request.body.zipcode.trim(),
 		latitude: lat,
@@ -477,8 +477,8 @@ app.use('/approve', (req, res) => {
 	var filter = { 'name': req.query.name };
 
 	console.log(req.query.name);
-	
-	Suggestion.findOneAndDelete(filter, (err,suggestion) => {
+
+	Suggestion.findOneAndDelete(filter, (err, suggestion) => {
 		if (err) {
 			res.json({ 'status': err });
 		}
@@ -500,7 +500,7 @@ app.use('/approve', (req, res) => {
 
 			newResource.save((err) => {
 				if (err) {
-					res.json({'status': err});
+					res.json({ 'status': err });
 				}
 				else {
 					// display the "successfully created" message
