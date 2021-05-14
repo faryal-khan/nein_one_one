@@ -17,22 +17,51 @@
         integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous">
         </script>
 
-    <script type="text/javascript">
-        function validateForm() {
-            var a = document.forms["update"]["name"].value;
-            var zip = document.forms["create"]["zipcode"].value;
+<script type="text/javascript">
+    function validateForm() {
+        var name = document.forms["create"]["name"].value;
+        var phone = document.forms["create"]["phone"].value;
+        var zip = document.forms["create"]["zipcode"].value;
+        var address = document.forms["create"]["addressOption"].value;
 
-            if (a == null || a == "") {
-                alert("Resource name cannot be empty");
-                return false;
+        // Validation for name and phone
+        if (name == null || name.trim() == "" ){
+            alert("Name cannot be empty");
+            return false;
+        }
+
+        // Check that at least one address option is selected
+        var chx = document.getElementsByName('addressOption');
+        for (var i = 0; i < chx.length; i++) {
+            // Return true from the function on first match of a checked item
+            if (chx[i].type == 'radio' && chx[i].checked) {
+                return true;
             }
+        }
+        // End of the loop, return false
+        alert('Please select an address option')
+        return false;
+
+        // Validation for zipcode
+        if (address == 'yes' && (zip == null || zip.trim() == "")) {
+            alert("Please enter a ZIP Code.");
+            return false;
         }
 
         // Zip code must be 5 digits
         if (zip.length > 5) {
             alert("ZIP code must be 5 digits.");
         }
-    </script>
+    }
+
+    function addressCheck() {
+        if (document.getElementById('yesCheck').checked) {
+            document.getElementById('addressDetails').style.display = 'block';
+        } else {
+            document.getElementById('addressDetails').style.display = 'none';
+        }
+    }
+</script>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
@@ -99,22 +128,41 @@
                     <input type="text" class="form-control" name="website" placeholder="www.dontcallthepolice.com">
                 </div>
                 <div class="form-group mb-3">
-                    <label for="street" class="form-label">Street Address</label>
-                    <input type="text" class="form-control" name="street" placeholder="Apartment, studio, or floor">
+                    <label for="addressOption">Address: <span class="required">*</span></label>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="addressOption" id="yesCheck" value="yes"
+                            onclick="addressCheck()">
+                        <label class="form-check-label" for="addressOption">
+                            Yes
+                        </label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="addressOption" id="noCheck" value="no"
+                            onclick="addressCheck()">
+                        <label class="form-check-label" for="addressOption">
+                            No
+                        </label>
+                    </div>
                 </div>
-                <div class="row form-group mb-3">
-                    <div class="col-3">
-                        <label for="zipcode" class="form-label">Zip</label>
-                        <input type="number" class="form-control" name="zipcode" placeholder="xxxxx">
+                <div id="addressDetails">
+                    <div class="form-group mb-3">
+                        <label for="street" class="form-label">Street Address</label>
+                        <input type="text" class="form-control" name="street" placeholder="Apartment, studio, or floor">
                     </div>
-                    <div class="col-5">
-                        <label for="city" class="form-label">City</label>
-                        <input type="text" class="form-control" name="city">
-                    </div>
-                    <div class="col-3">
-                        <label for="state" class="form-label">State</label>
-                        <input type="text" class="form-control" name="state" placeholder="xx" maxlength="2"
-                            style="text-transform:uppercase">
+                    <div class="row form-group mb-3">
+                        <div class="col-3">
+                            <label for="zipcode" class="form-label">Zip <span class="required">*</span></label>
+                            <input type="number" class="form-control" name="zipcode" placeholder="xxxxx">
+                        </div>
+                        <div class="col-5">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" name="city">
+                        </div>
+                        <div class="col-3">
+                            <label for="state" class="form-label">State</label>
+                            <input type="text" class="form-control" name="state" placeholder="xx" maxlength="2"
+                                style="text-transform:uppercase">
+                        </div>
                     </div>
                 </div>
                 <div class="form-group mb-3">

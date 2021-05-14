@@ -2,6 +2,13 @@
 var express = require('express');
 var app = express();
 
+var mongoose = require('mongoose');
+
+// the host:port must match the location where you are running MongoDB
+// the "myDatabase" part can be anything you like
+mongoose.connect('mongodb://localhost:27017/myDatabase');
+mongoose.set('useFindAndModify', false);
+
 // set up BodyParser
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -18,7 +25,6 @@ const http = require('http');
 // import the Resource class from Resource.js
 var Resource = require('./Resource.js');
 var Suggestion = require('./Suggestion.js');
-
 /***************************************/
 
 // endpoint for creating a new Resource
@@ -224,26 +230,175 @@ app.use('/api', (req, res) => {
 	});
 });
 
+function updateZipUtil(req, res, lat, long) {
+	var filter = { 'name': req.body.name};
+	var action = { '$set': { 'latitude': lat, 'longitude': long} };
+
+	Resource.findOneAndUpdate(filter, action, (err, orig) => {
+		/*
+		if (err) {
+			res.json({ 'status': err });
+		}
+		else if (!orig) {
+			res.json({ 'status': 'no resource' });
+		}
+		else {
+			res.json({ 'status': 'success' });
+		}
+		*/
+	});
+}
+
+function updateZip(req,res){
+	var searchZipcode = req.body.zipcode.trim();
+	var url = 'http://api.positionstack.com/v1/forward?access_key=c19118447bc587fb3352ef92eeddd47c&query=zipcode:'
+			+ searchZipcode + '&country_code:USA';
+		console.log(url);
+		http.get(url, (resp) => {
+			let data = '';
+
+			// A chunk of data has been received.
+			resp.on('data', (chunk) => {
+				data += chunk;
+			});
+
+			// The whole response has been received. Print out the result.
+			resp.on('end', () => {
+
+				var locations = JSON.parse(data).data;
+
+				// if no location with given zipcode is found, print out message and return
+				if (locations.length == 0) {
+					res.type('html').status(200);
+					res.write('Zipcode not found.');
+					res.end();
+					return;
+				}
+
+				var lat = locations[0].latitude;
+				var long = locations[0].longitude;
+				updateZipUtil(req, res, lat, long);
+			});
+		});
+}
+
+function updateWebsite(req, res){
+	var filter = { 'name': req.body.name.trim()};
+	var action = {'$set': {'website': req.body.website.trim()}};
+	Resource.findOneAndUpdate(filter, action, (err, orig) => {
+	});
+}
+
+function updatePhone(req,res){
+	var filter = { 'name': req.body.name.trim()};
+	var action = {'$set': {'phone': req.body.phone.trim()}};
+	Resource.findOneAndUpdate(filter, action, (err, orig) => {
+	});
+}
+
+function updateDescription(req,res){
+	var filter = { 'name': req.body.name.trim()};
+	var action = {'$set': {'description': req.body.description.trim()}};
+	Resource.findOneAndUpdate(filter, action, (err, orig) => {
+	});
+}
+
+function updateLocation(req,res){
+	var filter = { 'name': req.body.name.trim()};
+	var action = {'$set': {'location': req.body.street.trim() + ' ' + req.body.city.trim() + ' ' + req.body.state.trim() + ' ' + req.body.zipcode.trim()}};
+	Resource.findOneAndUpdate(filter, action, (err, orig) => {
+	});
+}
+
 app.use('/update', (req, res) => {
-	var filter = { 'name': req.query.name };
+	var filter = { 'name': req.body.name};
+	console.log(req.body.website);
 	var action = null;
 
-	if (req.query.website != null && req.query.phone != null && req.query.description) {
-		action = { '$set': { 'website': req.query.website, 'phone': req.query.phone, 'description': req.query.description } };
-	} else if (req.query.website != null && req.query.phone != null) {
-		action = { '$set': { 'website': req.query.website, 'phone': req.query.phone } };
-	} else if (req.query.website != null && req.query.description != null) {
-		action = { '$set': { 'website': req.query.website, 'description': req.query.description } };
-	} else if (req.query.phone != null && req.query.description != null) {
-		action = { '$set': { 'phone': req.query.phone, 'description': req.query.description } };
-	} else if (req.query.website != null) {
-		action = { '$set': { 'website': req.query.website } };
-	} else if (req.query.phone != null) {
-		action = { '$set': { 'phone': req.query.phone } };
-	} else if (req.query.description != null) {
-		action = { '$set': { 'description': req.query.description } };
+	//if the user entered zipcode information
+
+	if(req.body.zipcode){
+		updateZip(req,res);
 	}
 
+	var newZip = req.body.zipcode;
+	var newWeb = req.body.website.trim();
+	var newPhone = req.body.phone.trim();
+	var newDesc = req.body.description.trim();
+	var newLoc = req.body.street.trim() + ' ' + req.body.city.trim() + ' ' + req.body.state.trim() + ' ' + req.body.zipcode.trim();
+	
+	
+	if(newWeb && newPhone && newDesc && newZip){
+		action = {'$set': {'website': newWeb, 'phone': newPhone, 'location': newLoc, 'description': newDesc}};
+	}else if(newWeb && newPhone && newDesc){
+		action = {'$set': {'website': newWeb, 'phone': newPhone, 'description': newDesc}};
+	}else if(newWeb && newPhone && newZip){
+		action = {'$set': {'website': newWeb, 'phone': newPhone, 'location': newLoc}};
+	}else if(newWeb && newDesc && newZip){
+		action = {'$set': {'website': newWeb, 'location': newLoc, 'description': newDesc}};
+	}else if(newPhone && newDesc && newZip){
+		action = {'$set': {'phone': newPhone, 'location': newLoc, 'description': newDesc}};
+	}else if(newWeb && newPhone){
+		action = {'$set': {'website': newWeb, 'phone': newPhone}};
+	}else if(newWeb && newDesc){
+		action = {'$set': {'website': newWeb, 'description': newDesc}};
+	}else if(newWeb && newZip){
+		action = {'$set': {'website': newWeb, 'location': newLoc}};
+	}else if(newPhone && newDesc){
+		action = {'$set': {'phone': newPhone, 'description': newDesc}};
+	}else if(newPhone && newZip){
+		action = {'$set': {'phone': newPhone, 'location': newLoc}};
+	}else if(newDesc && newZip){
+		action = {'$set': {'location': newLoc, 'description': newDesc}};
+	}else if(newWeb){
+		action = {'$set': {'website': newWeb}};
+	}else if(newPhone){
+		action = {'$set': {'phone': newPhone}};
+	}else if(newDesc){
+		action = {'$set': {'description': newDesc}};
+	}else if(newZip){
+		action = {'$set': {'location': newLoc}};
+	}
+	
+	/*
+	if (req.body.website && req.body.phone && req.body.description && req.body.zipcode) {
+		action = { '$set': { 'website': req.body.website, 'phone': req.body.phone, 
+			'description': req.body.description, 'location': req.body.street.trim() + 
+			' ' + req.body.city.trim() + ' ' + req.body.state.trim() + ' '
+			+ req.body.zipcode.trim()} };
+
+	} else if(req.body.website && req.body.phone && req.body.description){
+		action = { '$set': { 'website': req.body.website, 
+		'phone': req.body.phone, 'description': req.body.description} };
+
+	} else if (req.body.website && req.body.phone && req.body.zipcode) {
+		action = { '$set': { 'website': req.body.website, 
+		'phone': req.body.phone, 'location': req.body.street.trim() + ' ' + req.body.city.trim() + ' '
+		+ req.body.state.trim() + ' ' + req.body.zipcode.trim()} };
+
+	} else if (req.body.website && req.body.description && req.body.zipcode) {
+		action = { '$set': { 'website': req.body.website, 
+		'description': req.body.description, 'location': req.body.street.trim() + 
+		' ' + req.body.city.trim() + ' '
+		+ req.body.state.trim() + ' ' + req.body.zipcode.trim()} };
+
+	} else if (req.body.phone && req.body.description & req.body.zipcode) {
+		action = { '$set': { 'phone': req.body.phone, 'description': req.body.description, 
+		'location': req.body.street.trim() + 
+		' ' + req.body.city.trim() + ' '
+		+ req.body.state.trim() + ' ' + req.body.zipcode.trim()} };
+
+	} else if (req.body.website  & req.body.phone) {
+		action = { '$set': { 'website': req.body.website} };
+
+	} else if (req.body.phone) {
+		action = { '$set': { 'phone': req.body.phone } };
+
+	} else if (req.body.description) {
+		action = { '$set': { 'description': req.body.description} };
+	}
+	*/
+	
 	if (action != null) {
 		Resource.findOneAndUpdate(filter, action, (err, orig) => {
 			if (err) {
@@ -474,7 +629,7 @@ function degreeToRadian(deg) {
 
 app.use('/approve', (req, res) => {
 
-	var filter = { 'name': req.query.name };
+	var filter = { 'name': req.query.name};
 
 	console.log(req.query.name);
 

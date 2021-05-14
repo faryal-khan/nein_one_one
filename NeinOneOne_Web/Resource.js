@@ -4,6 +4,7 @@ var uniqueValidator = require('mongoose-unique-validator');
 // the host:port must match the location where you are running MongoDB
 // the "myDatabase" part can be anything you like
 mongoose.connect('mongodb://localhost:27017/myDatabase');
+mongoose.set('useCreateIndex', true);
 
 var Schema = mongoose.Schema;
 
