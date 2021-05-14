@@ -282,34 +282,6 @@ function updateZip(req, res) {
 	});
 }
 
-function updateWebsite(req, res) {
-	var filter = { 'name': req.body.name.trim() };
-	var action = { '$set': { 'website': req.body.website.trim() } };
-	Resource.findOneAndUpdate(filter, action, (err, orig) => {
-	});
-}
-
-function updatePhone(req, res) {
-	var filter = { 'name': req.body.name.trim() };
-	var action = { '$set': { 'phone': req.body.phone.trim() } };
-	Resource.findOneAndUpdate(filter, action, (err, orig) => {
-	});
-}
-
-function updateDescription(req, res) {
-	var filter = { 'name': req.body.name.trim() };
-	var action = { '$set': { 'description': req.body.description.trim() } };
-	Resource.findOneAndUpdate(filter, action, (err, orig) => {
-	});
-}
-
-function updateLocation(req, res) {
-	var filter = { 'name': req.body.name.trim() };
-	var action = { '$set': { 'location': req.body.street.trim() + ' ' + req.body.city.trim() + ' ' + req.body.state.trim() + ' ' + req.body.zipcode.trim() } };
-	Resource.findOneAndUpdate(filter, action, (err, orig) => {
-	});
-}
-
 app.use('/update', (req, res) => {
 	var filter = { 'name': req.body.name };
 	console.log(req.body.website);
@@ -360,44 +332,6 @@ app.use('/update', (req, res) => {
 		action = { '$set': { 'location': newLoc } };
 	}
 
-	/*
-	if (req.body.website && req.body.phone && req.body.description && req.body.zipcode) {
-		action = { '$set': { 'website': req.body.website, 'phone': req.body.phone, 
-			'description': req.body.description, 'location': req.body.street.trim() + 
-			' ' + req.body.city.trim() + ' ' + req.body.state.trim() + ' '
-			+ req.body.zipcode.trim()} };
-
-	} else if(req.body.website && req.body.phone && req.body.description){
-		action = { '$set': { 'website': req.body.website, 
-		'phone': req.body.phone, 'description': req.body.description} };
-
-	} else if (req.body.website && req.body.phone && req.body.zipcode) {
-		action = { '$set': { 'website': req.body.website, 
-		'phone': req.body.phone, 'location': req.body.street.trim() + ' ' + req.body.city.trim() + ' '
-		+ req.body.state.trim() + ' ' + req.body.zipcode.trim()} };
-
-	} else if (req.body.website && req.body.description && req.body.zipcode) {
-		action = { '$set': { 'website': req.body.website, 
-		'description': req.body.description, 'location': req.body.street.trim() + 
-		' ' + req.body.city.trim() + ' '
-		+ req.body.state.trim() + ' ' + req.body.zipcode.trim()} };
-
-	} else if (req.body.phone && req.body.description & req.body.zipcode) {
-		action = { '$set': { 'phone': req.body.phone, 'description': req.body.description, 
-		'location': req.body.street.trim() + 
-		' ' + req.body.city.trim() + ' '
-		+ req.body.state.trim() + ' ' + req.body.zipcode.trim()} };
-
-	} else if (req.body.website  & req.body.phone) {
-		action = { '$set': { 'website': req.body.website} };
-
-	} else if (req.body.phone) {
-		action = { '$set': { 'phone': req.body.phone } };
-
-	} else if (req.body.description) {
-		action = { '$set': { 'description': req.body.description} };
-	}
-	*/
 
 	if (action != null) {
 		Resource.findOneAndUpdate(filter, action, (err, orig) => {
@@ -628,9 +562,8 @@ function degreeToRadian(deg) {
 	return deg * (Math.PI / 180);
 }
 
-app.use('/approve', (req, res) => {
-
-	var filter = { 'name': req.query.name };
+function approveUtil(req,res){
+	var filter = {'name': req.query.name.trim()};
 
 	console.log(req.query.name);
 
@@ -666,12 +599,27 @@ app.use('/approve', (req, res) => {
 		}
 	});
 	// save the Resource to the database
+}
+
+app.use('/approve', (req, res) => {
+
+	var searchName = req.query.name.trim();
+
+	Resource.find({name: searchName}, (err, orig) => {
+		console.log(orig);
+		if (!orig || orig.length == 0) {
+			approveUtil(req,res);
+		}else{
+			res.write("Cannot approve duplicate resource");
+			res.end();
+		}
+	});
 
 });
 
 
 app.use('/delete', (req, res) => {
-	var filter = { 'name': req.query.name };
+	var filter = { 'name': req.query.name.trim()};
 
 	Resource.findOneAndDelete(filter, (err, orig) => {
 		if (err) {
@@ -687,7 +635,7 @@ app.use('/delete', (req, res) => {
 });
 
 app.use('/disapprove', (req, res) => {
-	var filter = { 'name': req.query.name };
+	var filter = { 'name': req.query.name.trim()};
 
 	Suggestion.findOneAndDelete(filter, (err, orig) => {
 		if (err) {
